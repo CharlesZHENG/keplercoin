@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.env;
 
 import kpl.Block;
@@ -277,5 +277,9 @@ public class DesktopSystemTray {
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = "" + ("KMGTPE").charAt(exp-1);
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    void alert(String message) {
+        JOptionPane.showMessageDialog(null, message, "Initialization Error", JOptionPane.ERROR_MESSAGE);
     }
 }

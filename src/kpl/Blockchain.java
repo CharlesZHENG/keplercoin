@@ -11,7 +11,7 @@
  * file.                                                                      *
  *                                                                            *
  * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
+ * Kiwi:Updated                                                               *
  ******************************************************************************/
 
 package kpl;
@@ -66,6 +66,8 @@ public interface Blockchain {
     List<? extends Block> getBlocksAfter(long blockId, List<Long> blockList);
 
     long getBlockIdAtHeight(int height);
+
+    Block getECBlock(int timestamp);
 
     Transaction getTransaction(long transactionId);
 

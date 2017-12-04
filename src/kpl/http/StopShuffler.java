@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.http;
 
 import kpl.Account;
@@ -76,4 +76,8 @@ public final class StopShuffler extends APIServlet.APIRequestHandler {
         return false;
     }
 
+    @Override
+    protected boolean requireFullClient() {
+        return true;
+    }
 }

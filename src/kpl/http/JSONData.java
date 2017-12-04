@@ -13,11 +13,49 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.http;
 
-import kpl.*;
+import kpl.Account;
+import kpl.AccountLedger;
 import kpl.AccountLedger.LedgerEntry;
+import kpl.AccountRestrictions;
+import kpl.Alias;
+import kpl.Appendix;
+import kpl.Asset;
+import kpl.AssetDelete;
+import kpl.AssetDividend;
+import kpl.AssetTransfer;
+import kpl.Attachment;
+import kpl.Block;
+import kpl.Constants;
+import kpl.Currency;
+import kpl.CurrencyExchangeOffer;
+import kpl.CurrencyFounder;
+import kpl.CurrencyTransfer;
+import kpl.CurrencyType;
+import kpl.DigitalGoodsStore;
+import kpl.Exchange;
+import kpl.ExchangeRequest;
+import kpl.FundingMonitor;
+import kpl.Generator;
+import kpl.HoldingType;
+import kpl.MonetarySystem;
+import kpl.Kpl;
+import kpl.Order;
+import kpl.PhasingPoll;
+import kpl.PhasingVote;
+import kpl.Poll;
+import kpl.PrunableMessage;
+import kpl.Shuffler;
+import kpl.Shuffling;
+import kpl.ShufflingParticipant;
+import kpl.TaggedData;
+import kpl.Token;
+import kpl.Trade;
+import kpl.Transaction;
+import kpl.Vote;
+import kpl.VoteWeighting;
 import kpl.crypto.Crypto;
 import kpl.crypto.EncryptedData;
 import kpl.db.DbIterator;
@@ -1101,6 +1139,7 @@ public final class JSONData {
         json.put("requireBlockchain", handler.requireBlockchain());
         json.put("requirePost", handler.requirePost());
         json.put("requirePassword", handler.requirePassword());
+        json.put("requireFullClient", handler.requireFullClient());
         return json;
     }
 

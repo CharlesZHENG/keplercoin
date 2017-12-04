@@ -112,7 +112,7 @@ public class DesktopApplication extends Application {
         loadWorker.stateProperty().addListener(
                 (ov, oldState, newState) -> {
                     JSObject window = (JSObject)webEngine.executeScript("window");
-                    window.setMember("java", new JavaScriptBridge());
+                    window.setMember("java", new JavaScriptBridge(this));
                     Locale locale = Locale.getDefault();
                     String language = locale.getLanguage().toLowerCase() + "-" + locale.getCountry().toUpperCase();
                     window.setMember("javaFxLanguage", language);
@@ -120,6 +120,7 @@ public class DesktopApplication extends Application {
                     //stage.setTitle("kpl Desktop - " + webEngine.getLocation());
                     if (newState == Worker.State.SUCCEEDED) {
                         KRS = (JSObject) webEngine.executeScript("krs");
+                        updateClientState("Desktop Wallet started");
                         BlockchainProcessor blockchainProcessor = Kpl.getBlockchainProcessor();
                         blockchainProcessor.addListener((block) ->
                                 updateClientState(BlockchainProcessor.Event.BLOCK_PUSHED, block), BlockchainProcessor.Event.BLOCK_PUSHED);

@@ -11,7 +11,7 @@
  * file.                                                                      *
  *                                                                            *
  * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
+ * Kiwi:Updated                                                               *
  ******************************************************************************/
 
 package kpl;
@@ -84,7 +84,7 @@ final class TransactionImpl implements Transaction {
                 timestamp = Kpl.getEpochTime();
             }
             if (!ecBlockSet) {
-                Block ecBlock = EconomicClustering.getECBlock(timestamp);
+                Block ecBlock = BlockchainImpl.getInstance().getECBlock(timestamp);
                 this.ecBlockHeight = ecBlock.getHeight();
                 this.ecBlockId = ecBlock.getId();
             }
@@ -1020,10 +1020,22 @@ final class TransactionImpl implements Transaction {
         }
 
         if (!validatingAtFinish) {
-            long minimumFeeNQT = getMinimumFeeNQT(Kpl.getBlockchain().getHeight());
+            int blockchainHeight = Kpl.getBlockchain().getHeight();
+            long minimumFeeNQT = getMinimumFeeNQT(blockchainHeight);
             if (feeNQT < minimumFeeNQT) {
                 throw new kplException.NotCurrentlyValidException(String.format("Transaction fee %f kpl less than minimum fee %f kpl at height %d",
-                        ((double) feeNQT) / Constants.ONE_kpl, ((double) minimumFeeNQT) / Constants.ONE_kpl, Kpl.getBlockchain().getHeight()));
+                        ((double) feeNQT) / Constants.ONE_kpl, ((double) minimumFeeNQT) / Constants.ONE_kpl, blockchainHeight));
+            }
+            if (blockchainHeight > Constants.FXT_BLOCK && ecBlockId != 0) {
+                if (blockchainHeight < ecBlockHeight) {
+                    throw new kplException.NotCurrentlyValidException("ecBlockHeight " + ecBlockHeight
+                            + " exceeds blockchain height " + blockchainHeight);
+                }
+                if (BlockDb.findBlockIdAtHeight(ecBlockHeight) != ecBlockId) {
+                    throw new kplException.NotCurrentlyValidException("ecBlockHeight " + ecBlockHeight
+                            + " does not match ecBlockId " + Long.toUnsignedString(ecBlockId)
+                            + ", transaction was generated on a fork");
+                }
             }
         }
         AccountRestrictions.checkTransaction(this, validatingAtFinish);

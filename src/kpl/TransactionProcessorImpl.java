@@ -11,7 +11,7 @@
  * file.                                                                      *
  *                                                                            *
  * Removal or modification of this copyright notice is prohibited.            *
- *                                                                            *
+ * Kiwi:Updated                                                               *
  ******************************************************************************/
 
 package kpl;
@@ -22,12 +22,9 @@ import kpl.db.DbKey;
 import kpl.db.EntityDbTable;
 import kpl.peer.Peer;
 import kpl.peer.Peers;
-import kpl.util.Convert;
-import kpl.util.JSON;
-import kpl.util.Listener;
-import kpl.util.Listeners;
-import kpl.util.Logger;
-import kpl.util.ThreadPool;
+
+import kpl.util.*;
+
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -35,19 +32,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 final class TransactionProcessorImpl implements TransactionProcessor {
@@ -307,11 +292,15 @@ final class TransactionProcessorImpl implements TransactionProcessor {
 
 
     private TransactionProcessorImpl() {
-        ThreadPool.scheduleThread("ProcessTransactions", processTransactionsThread, 5);
-        ThreadPool.scheduleThread("RemoveUnconfirmedTransactions", removeUnconfirmedTransactionsThread, 20); //移除过期交易
-        ThreadPool.scheduleThread("ProcessWaitingTransactions", processWaitingTransactionsThread, 1); //
-        ThreadPool.runAfterStart(this::rebroadcastAllUnconfirmedTransactions);
-        ThreadPool.scheduleThread("RebroadcastTransactions", rebroadcastTransactionsThread, 23); //广播交易
+        if (!Constants.isLightClient) {
+            if (!Constants.isOffline) {
+                ThreadPool.scheduleThread("ProcessTransactions", processTransactionsThread, 5);
+                ThreadPool.runAfterStart(this::rebroadcastAllUnconfirmedTransactions);
+                ThreadPool.scheduleThread("RebroadcastTransactions", rebroadcastTransactionsThread, 23);
+            }
+            ThreadPool.scheduleThread("RemoveUnconfirmedTransactions", removeUnconfirmedTransactionsThread, 20);
+            ThreadPool.scheduleThread("ProcessWaitingTransactions", processWaitingTransactionsThread, 1);
+        }
     }
 
     @Override

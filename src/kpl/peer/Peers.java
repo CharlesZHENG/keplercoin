@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.peer;
 
 import kpl.Account;
@@ -23,6 +23,7 @@ import kpl.Db;
 import kpl.Kpl;
 import kpl.Transaction;
 import kpl.http.API;
+import kpl.http.APIEnum;
 import kpl.util.Convert;
 import kpl.util.Filter;
 import kpl.util.JSON;
@@ -130,9 +131,11 @@ public final class Peers {
     static final int MAX_ANNOUNCED_ADDRESS_LENGTH = 100;
     static final boolean hideErrorDetails = Kpl.getBooleanProperty("kpl.hideErrorDetails");
 
-    static final JSONStreamAware myPeerInfoRequest;
-    static final JSONStreamAware myPeerInfoResponse;
+    private static final JSONObject myPeerInfo;
     private static final List<Peer.Service> myServices;
+    private static volatile Peer.BlockchainState currentBlockchainState;
+    private static volatile JSONStreamAware myPeerInfoRequest;
+    private static volatile JSONStreamAware myPeerInfoResponse;
 
     private static final Listeners<Peer,Event> listeners = new Listeners<>();
 
@@ -204,7 +207,7 @@ public final class Peers {
         }
         shareMyAddress = Kpl.getBooleanProperty("kpl.shareMyAddress") && ! Constants.isOffline;
         enablePeerUPnP = Kpl.getBooleanProperty("kpl.enablePeerUPnP");
-        myHallmark = Kpl.getStringProperty("kpl.myHallmark");
+        myHallmark = Convert.emptyToNull(Kpl.getStringProperty("kpl.myHallmark", "").trim());
         if (Peers.myHallmark != null && Peers.myHallmark.length() > 0) {
             try {
                 Hallmark hallmark = Hallmark.parseHallmark(Peers.myHallmark);
@@ -268,6 +271,26 @@ public final class Peers {
             json.put("apiSSLPort", API.openAPISSLPort);
             servicesList.add(Peer.Service.API_SSL);
         }
+        if (API.openAPIPort > 0 || API.openAPISSLPort > 0) {
+            EnumSet<APIEnum> disabledAPISet = EnumSet.noneOf(APIEnum.class);
+
+            API.disabledAPIs.forEach(apiName -> {
+                APIEnum api = APIEnum.fromName(apiName);
+                if (api != null) {
+                    disabledAPISet.add(api);
+                }
+            });
+            API.disabledAPITags.forEach(apiTag -> {
+                for (APIEnum api : APIEnum.values()) {
+                    if (api.getHandler() != null && api.getHandler().getAPITags().contains(apiTag)) {
+                        disabledAPISet.add(api);
+                    }
+                }
+            });
+            json.put("disabledAPIs", APIEnum.enumSetToBase64String(disabledAPISet));
+
+            json.put("apiServerIdleTimeout", API.apiServerIdleTimeout);
+        }
         long services = 0;
         for (Peer.Service service : servicesList) {
             services |= service.getCode();
@@ -275,9 +298,7 @@ public final class Peers {
         json.put("services", Long.toUnsignedString(services));
         myServices = Collections.unmodifiableList(servicesList);
         Logger.logDebugMessage("My peer info:\n" + json.toJSONString());
-        myPeerInfoResponse = JSON.prepare(json);
-        json.put("requestType", "getInfo");
-        myPeerInfoRequest = JSON.prepareRequest(json);
+        myPeerInfo = json;
 
         final List<String> defaultPeers = Constants.isTestnet ? Kpl.getStringListProperty("kpl.defaultTestnetPeers")
                 : Kpl.getStringListProperty("kpl.defaultPeers");
@@ -299,7 +320,7 @@ public final class Peers {
         minNumberOfKnownPeers = Kpl.getIntProperty("kpl.minNumberOfKnownPeers");
         connectTimeout = Kpl.getIntProperty("kpl.connectTimeout");
         readTimeout = Kpl.getIntProperty("kpl.readTimeout");
-        enableHallmarkProtection = Kpl.getBooleanProperty("kpl.enableHallmarkProtection");
+        enableHallmarkProtection = Kpl.getBooleanProperty("kpl.enableHallmarkProtection") && !Constants.isLightClient;
         pushThreshold = Kpl.getIntProperty("kpl.pushThreshold");
         pullThreshold = Kpl.getIntProperty("kpl.pullThreshold");
         useWebSockets = Kpl.getBooleanProperty("kpl.useWebSockets");
@@ -1008,7 +1029,8 @@ public final class Peers {
                     continue;
                 }
 
-                if (!peer.isBlacklisted() && peer.getState() == Peer.State.CONNECTED && peer.getAnnouncedAddress() != null) {
+                if (!peer.isBlacklisted() && peer.getState() == Peer.State.CONNECTED && peer.getAnnouncedAddress() != null
+                        && peer.getBlockchainState() != Peer.BlockchainState.LIGHT_CLIENT) {
                     Future<JSONObject> futureResponse = peersService.submit(() -> peer.send(jsonRequest));
                     expectedResponses.add(futureResponse);
                 }
@@ -1087,6 +1109,65 @@ public final class Peers {
         }
     }
 
+    public static boolean isOldVersion(String version, int[] minVersion) {
+        if (version == null) {
+            return true;
+        }
+        if (version.endsWith("e")) {
+            version = version.substring(0, version.length() - 1);
+        }
+        String[] versions = version.split("\\.");
+        for (int i = 0; i < minVersion.length && i < versions.length; i++) {
+            try {
+                int v = Integer.parseInt(versions[i]);
+                if (v > minVersion[i]) {
+                    return false;
+                } else if (v < minVersion[i]) {
+                    return true;
+                }
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        }
+        return versions.length < minVersion.length;
+    }
+
+    private static final int[] MAX_VERSION;
+    static {
+        String version = Kpl.VERSION;
+        if (version.endsWith("e")) {
+            version = version.substring(0, version.length() - 1);
+        }
+        String[] versions = version.split("\\.");
+        MAX_VERSION = new int[versions.length];
+        for (int i = 0; i < versions.length; i++) {
+            MAX_VERSION[i] = Integer.parseInt(versions[i]);
+        }
+    }
+
+    public static boolean isNewVersion(String version) {
+        if (version == null) {
+            return true;
+        }
+        if (version.endsWith("e")) {
+            version = version.substring(0, version.length() - 1);
+        }
+        String[] versions = version.split("\\.");
+        for (int i = 0; i < MAX_VERSION.length && i < versions.length; i++) {
+            try {
+                int v = Integer.parseInt(versions[i]);
+                if (v > MAX_VERSION[i]) {
+                    return true;
+                } else if (v < MAX_VERSION[i]) {
+                    return false;
+                }
+            } catch (NumberFormatException e) {
+                return true;
+            }
+        }
+        return versions.length > MAX_VERSION.length;
+    }
+
     public static boolean hasTooFewKnownPeers() {
         return peers.size() < Peers.minNumberOfKnownPeers;
     }
@@ -1140,6 +1221,31 @@ public final class Peers {
      */
     public static List<Peer.Service> getServices() {
         return myServices;
+    }
+
+    private static void checkBlockchainState() {
+        Peer.BlockchainState state = Constants.isLightClient ? Peer.BlockchainState.LIGHT_CLIENT :
+                (Kpl.getBlockchainProcessor().isDownloading() || Kpl.getBlockchain().getLastBlockTimestamp() < Kpl.getEpochTime() - 600) ? Peer.BlockchainState.DOWNLOADING :
+                        (Kpl.getBlockchain().getLastBlock().getBaseTarget() / Constants.INITIAL_BASE_TARGET > 10 && !Constants.isTestnet) ? Peer.BlockchainState.FORK :
+                                Peer.BlockchainState.UP_TO_DATE;
+        if (state != currentBlockchainState) {
+            JSONObject json = new JSONObject(myPeerInfo);
+            json.put("blockchainState", state.ordinal());
+            myPeerInfoResponse = JSON.prepare(json);
+            json.put("requestType", "getInfo");
+            myPeerInfoRequest = JSON.prepareRequest(json);
+            currentBlockchainState = state;
+        }
+    }
+
+    public static JSONStreamAware getMyPeerInfoRequest() {
+        checkBlockchainState();
+        return myPeerInfoRequest;
+    }
+
+    public static JSONStreamAware getMyPeerInfoResponse() {
+        checkBlockchainState();
+        return myPeerInfoResponse;
     }
 
     private Peers() {} // never

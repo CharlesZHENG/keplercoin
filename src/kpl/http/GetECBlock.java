@@ -13,12 +13,10 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi
 package kpl.http;
 
 import kpl.Block;
-import kpl.Constants;
-import kpl.EconomicClustering;
 import kpl.Kpl;
 import kpl.kplException;
 import org.json.simple.JSONObject;
@@ -40,10 +38,7 @@ public final class GetECBlock extends APIServlet.APIRequestHandler {
         if (timestamp == 0) {
             timestamp = Kpl.getEpochTime();
         }
-        if (timestamp < Kpl.getBlockchain().getLastBlock().getTimestamp() - Constants.MAX_TIMEDRIFT) {
-            return JSONResponses.INCORRECT_TIMESTAMP;
-        }
-        Block ecBlock = EconomicClustering.getECBlock(timestamp);
+        Block ecBlock = Kpl.getBlockchain().getECBlock(timestamp);
         JSONObject response = new JSONObject();
         response.put("ecBlockId", ecBlock.getStringId());
         response.put("ecBlockHeight", ecBlock.getHeight());

@@ -62,4 +62,9 @@ public class DesktopMode implements RuntimeMode {
             Logger.logInfoMessage("kpldesktop.DesktopApplication failed to shutdown", e);
         }
     }
+
+    @Override
+    public void alert(String message) {
+        desktopSystemTray.alert(message);
+    }
 }

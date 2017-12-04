@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.env;
 
 import java.io.File;
@@ -28,4 +28,6 @@ public interface RuntimeMode {
     void launchDesktopApplication();
 
     void shutdown();
+
+    void alert(String message);
 }

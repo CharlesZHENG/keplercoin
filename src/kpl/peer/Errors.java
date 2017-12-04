@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.peer;
 
 final class Errors {
@@ -28,6 +28,7 @@ final class Errors {
     final static String MAX_INBOUND_CONNECTIONS = "Maximum number of inbound connections exceeded";
     final static String TOO_MANY_BLOCKS_REQUESTED = "Too many blocks requested";
     final static String DOWNLOADING = "Blockchain download in progress";
+    final static String LIGHT_CLIENT = "Peer is in light mode";
 
     private Errors() {} // never
 }

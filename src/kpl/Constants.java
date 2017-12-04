@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl;
 
 import java.util.Calendar;
@@ -23,6 +23,7 @@ public final class Constants {
 
     public static final boolean isTestnet = Kpl.getBooleanProperty("kpl.isTestnet");
     public static final boolean isOffline = Kpl.getBooleanProperty("kpl.isOffline");
+    public static final boolean isLightClient = Kpl.getBooleanProperty("kpl.isLightClient");
 
     public static final int MAX_NUMBER_OF_TRANSACTIONS = 255;
     public static final int MIN_TRANSACTION_SIZE = 176;
@@ -64,11 +65,13 @@ public final class Constants {
     public static final int MIN_PRUNABLE_LIFETIME = isTestnet ? 1440 * 60 : 14 * 1440 * 60;
     public static final int MAX_PRUNABLE_LIFETIME;
     public static final boolean ENABLE_PRUNING;
+
     static {
         int maxPrunableLifetime = Kpl.getIntProperty("kpl.maxPrunableLifetime");
         ENABLE_PRUNING = maxPrunableLifetime >= 0;
         MAX_PRUNABLE_LIFETIME = ENABLE_PRUNING ? Math.max(maxPrunableLifetime, MIN_PRUNABLE_LIFETIME) : Integer.MAX_VALUE;
     }
+
     public static final boolean INCLUDE_EXPIRED_PRUNABLE = Kpl.getBooleanProperty("kpl.includeExpiredPrunable");
 
     public static final int MAX_ACCOUNT_NAME_LENGTH = 100;
@@ -114,8 +117,8 @@ public final class Constants {
     public static final int MAX_MINTING_RATIO = 10000; // per mint units not more than 0.01% of total supply
     public static final byte MIN_NUMBER_OF_SHUFFLING_PARTICIPANTS = 3;
     public static final byte MAX_NUMBER_OF_SHUFFLING_PARTICIPANTS = 30; // max possible at current block payload limit is 51
-    public static final short MAX_SHUFFLING_REGISTRATION_PERIOD = (short)1440 * 7;
-    public static final short SHUFFLING_PROCESSING_DEADLINE = (short)(isTestnet ? 10 : 100);
+    public static final short MAX_SHUFFLING_REGISTRATION_PERIOD = (short) 1440 * 7;
+    public static final short SHUFFLING_PROCESSING_DEADLINE = (short) (isTestnet ? 10 : 100);
 
     public static final int MAX_TAGGED_DATA_NAME_LENGTH = 100;
     public static final int MAX_TAGGED_DATA_DESCRIPTION_LENGTH = 1000;
@@ -154,7 +157,8 @@ public final class Constants {
     public static final int LAST_CHECKSUM_BLOCK = CHECKSUM_BLOCK_19;
     public static final int LAST_KNOWN_BLOCK = isTestnet ? 0 : 0;
 
-    public static final int[] MIN_VERSION = new int[] {1, 0};
+    public static final int[] MIN_VERSION = new int[]{1, 0};
+    public static final int[] MIN_PROXY_VERSION = new int[] {1, 10, 1};//Kiwi:?
 
     static final long UNCONFIRMED_POOL_DEPOSIT_NQT = (isTestnet ? 50 : 100) * ONE_kpl;
     public static final long SHUFFLING_DEPOSIT_NQT = (isTestnet ? 7 : 1000) * ONE_kpl;
@@ -163,6 +167,7 @@ public final class Constants {
 
     /*创始区块产生时间 2017-5-6 19:59:59*/
     public static final long EPOCH_BEGINNING;
+
     static {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.set(Calendar.YEAR, 2017); // 几年
@@ -178,12 +183,7 @@ public final class Constants {
     public static final String ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz";
     public static final String ALLOWED_CURRENCY_CODE_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-    public static final int EC_RULE_TERMINATOR = 600; /* cfb: This constant defines a straight edge when "longest chain"
-                                                        rule is outweighed by "economic majority" rule; the terminator
-                                                        is set as number of seconds before the current time. */
-
-    public static final int EC_BLOCK_DISTANCE_LIMIT = 60;
-
-    private Constants() {} // never
+    private Constants() {
+    } // never
 
 }

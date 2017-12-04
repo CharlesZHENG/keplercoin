@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi
 package kpl.http;
 
 import kpl.Account;
@@ -78,6 +78,11 @@ public final class GetShufflers extends APIServlet.APIRequestHandler {
     @Override
     protected boolean allowRequiredBlockParameters() {
         return false;
+    }
+
+    @Override
+    protected boolean requireFullClient() {
+        return true;
     }
 
 }

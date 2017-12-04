@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi
 package kpl.http;
 
 import kpl.Kpl;
@@ -41,6 +41,11 @@ public final class GetTime extends APIServlet.APIRequestHandler {
 
     @Override
     protected boolean allowRequiredBlockParameters() {
+        return false;
+    }
+
+    @Override
+    protected boolean requireBlockchain() {
         return false;
     }
 

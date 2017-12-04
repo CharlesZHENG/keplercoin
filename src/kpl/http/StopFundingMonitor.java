@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.http;
 
 import kpl.Account;
@@ -93,5 +93,10 @@ public class StopFundingMonitor extends APIServlet.APIRequestHandler {
     @Override
     protected boolean allowRequiredBlockParameters() {
         return false;
+    }
+
+    @Override
+    protected boolean requireFullClient() {
+        return true;
     }
 }

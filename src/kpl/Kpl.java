@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl;
 
 import kpl.addons.AddOns;
@@ -23,6 +23,7 @@ import kpl.env.RuntimeEnvironment;
 import kpl.env.RuntimeMode;
 import kpl.env.ServerStatus;
 import kpl.http.API;
+import kpl.http.APIProxy;
 import kpl.peer.Peers;
 import kpl.user.Users;
 import kpl.util.Convert;
@@ -64,6 +65,7 @@ public final class Kpl {
 
     private static final Properties defaultProperties = new Properties();
     static {
+        System.setProperty("kpl.runtime.mode","desktop");
         redirectSystemStreams("out");
         redirectSystemStreams("err");
         System.out.println("Initializing kpl server version " + Kpl.VERSION);
@@ -372,6 +374,7 @@ public final class Kpl {
                 TaggedData.init();
                 FxtDistribution.init();
                 Peers.init();
+                APIProxy.init();
                 Generator.init();
                 AddOns.init();
                 API.init();
@@ -404,6 +407,8 @@ public final class Kpl {
                 }
             } catch (Exception e) {
                 Logger.logErrorMessage(e.getMessage(), e);
+                runtimeMode.alert(e.getMessage() + "\n" +
+                        "See additional information in " + dirProvider.getLogFileDir() + System.getProperty("file.separator") + "kpl.log");
                 System.exit(1);
             }
         }

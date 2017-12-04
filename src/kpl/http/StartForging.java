@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.http;
 
 import kpl.Generator;
@@ -28,7 +28,7 @@ public final class StartForging extends APIServlet.APIRequestHandler {
     static final StartForging instance = new StartForging();
 
     private StartForging() {
-        super(new APITag[] {APITag.FORGING}, "secretPhrase");
+        super(new APITag[]{APITag.FORGING}, "secretPhrase");
     }
 
     @Override
@@ -52,6 +52,11 @@ public final class StartForging extends APIServlet.APIRequestHandler {
     @Override
     protected boolean allowRequiredBlockParameters() {
         return false;
+    }
+
+    @Override
+    protected boolean requireFullClient() {
+        return true;
     }
 
 }

@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi
 package kpl.http;
 
 import org.json.simple.JSONArray;
@@ -64,6 +64,11 @@ public final class GetPlugins extends APIServlet.APIRequestHandler {
 
     @Override
     protected boolean allowRequiredBlockParameters() {
+        return false;
+    }
+
+    @Override
+    protected boolean requireBlockchain() {
         return false;
     }
 

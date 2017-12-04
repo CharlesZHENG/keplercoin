@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.env;
 
 import java.io.File;
@@ -32,4 +32,7 @@ public class CommandLineMode implements RuntimeMode {
 
     @Override
     public void shutdown() {}
+
+    @Override
+    public void alert(String message) {}
 }

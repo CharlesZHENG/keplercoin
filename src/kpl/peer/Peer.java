@@ -13,11 +13,13 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi:Made
 package kpl.peer;
 
+import kpl.http.APIEnum;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONStreamAware;
+import java.util.Set;
 
 public interface Peer extends Comparable<Peer> {
 
@@ -40,6 +42,13 @@ public interface Peer extends Comparable<Peer> {
         public long getCode() {
             return code;
         }
+    }
+
+    enum BlockchainState {
+        UP_TO_DATE,
+        DOWNLOADING,
+        LIGHT_CLIENT,
+        FORK
     }
 
     boolean providesService(Service service);
@@ -65,6 +74,12 @@ public interface Peer extends Comparable<Peer> {
     int getApiPort();
 
     int getApiSSLPort();
+
+    Set<APIEnum> getDisabledAPIs();
+
+    int getApiServerIdleTimeout();
+
+    BlockchainState getBlockchainState();
 
     Hallmark getHallmark();
 
@@ -97,6 +112,12 @@ public interface Peer extends Comparable<Peer> {
     boolean isInboundWebSocket();
 
     boolean isOutboundWebSocket();
+
+    boolean isOpenAPI();
+
+    boolean isApiConnectable();
+
+    StringBuilder getPeerApiUri();
 
     String getBlacklistingCause();
 
