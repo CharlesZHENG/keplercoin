@@ -543,8 +543,8 @@ var krs = (function(krs, $, undefined) {
 		var html = "";
 		html += "<tr class='tr_transaction_" + t.transaction + "'>";
 		html += "<td style='vertical-align:middle;'>";
-  		html += "<a class='show_transaction_modal_action' href='#' data-timestamp='" + String(t.timestamp).escapeHTML() + "' ";
-  		html += "data-transaction='" + String(t.transaction).escapeHTML() + "'>";
+  		html += "<a class='show_transaction_modal_action' href='#' data-timestamp='" + krs.escapeRespStr(t.timestamp) + "' ";
+  		html += "data-transaction='" + krs.escapeRespStr(t.transaction) + "'>";
   		html += krs.formatTimestamp(t.timestamp) + "</a>";
   		html += "</td>";
   		html += "<td style='vertical-align:middle;text-align:center;'>" + (hasMessage ? "&nbsp; <i class='fa fa-envelope-o'></i>&nbsp;" : "&nbsp;") + "</td>";
@@ -566,7 +566,7 @@ var krs = (function(krs, $, undefined) {
 			html += '<td class="td_transaction_actions" style="vertical-align:middle;text-align:right;">';
 			if (actions.indexOf('approve') > -1) {
                 html += "<a class='btn btn-xs btn-default approve_transaction_btn' href='#' data-toggle='modal' data-target='#approve_transaction_modal' ";
-				html += "data-transaction='" + String(t.transaction).escapeHTML() + "' data-fullhash='" + String(t.fullHash).escapeHTML() + "' ";
+				html += "data-transaction='" + krs.escapeRespStr(t.transaction) + "' data-fullhash='" + krs.escapeRespStr(t.fullHash) + "' ";
 				html += "data-timestamp='" + t.timestamp + "' " + "data-votingmodel='" + t.attachment.phasingVotingModel + "' ";
 				html += "data-fee='1' data-min-balance-formatted=''>" + $.t('approve') + "</a>";
 			}
@@ -581,10 +581,10 @@ var krs = (function(krs, $, undefined) {
         var dataToken;
         if (entry.isTransactionEvent) {
             linkClass = "show_transaction_modal_action";
-            dataToken = "data-transaction='" + String(entry.event).escapeHTML() + "'";
+            dataToken = "data-transaction='" + krs.escapeRespStr(entry.event) + "'";
         } else {
             linkClass = "show_block_modal_action";
-            dataToken = "data-id='1' data-block='" + String(entry.event).escapeHTML()+ "'";
+            dataToken = "data-id='1' data-block='" + krs.escapeRespStr(entry.event)+ "'";
         }
         var change = entry.change;
         var balance = entry.balance;
@@ -622,7 +622,7 @@ var krs = (function(krs, $, undefined) {
 			color = "color:red;";
 			sign = "-";
         }
-        var eventType = String(entry.eventType).escapeHTML();
+        var eventType = krs.escapeRespStr(entry.eventType);
         if (eventType.indexOf("ASSET") == 0 || eventType.indexOf("CURRENCY") == 0) {
             eventType = eventType.substring(eventType.indexOf("_") + 1);
         }
@@ -630,13 +630,13 @@ var krs = (function(krs, $, undefined) {
         var html = "";
 		html += "<tr>";
 		html += "<td style='vertical-align:middle;'>";
-  		html += "<a class='show_ledger_modal_action' href='#' data-entry='" + String(entry.ledgerId).escapeHTML() +"'";
+  		html += "<a class='show_ledger_modal_action' href='#' data-entry='" + krs.escapeRespStr(entry.ledgerId) +"'";
         html += "data-change='" + (entry.change < 0 ? ("-" + change) : change) + "' data-balance='" + balance + "'>";
   		html += krs.formatTimestamp(entry.timestamp) + "</a>";
   		html += "</td>";
 		html += '<td style="vertical-align:middle;">';
         html += '<span style="font-size:11px;display:inline-block;margin-top:5px;">' + eventType + '</span>';
-        html += "<a class='" + linkClass + "' href='#' data-timestamp='" + String(entry.timestamp).escapeHTML() + "' " + dataToken + ">";
+        html += "<a class='" + linkClass + "' href='#' data-timestamp='" + krs.escapeRespStr(entry.timestamp) + "' " + dataToken + ">";
         html += " <i class='fa fa-info'></i></a>";
 		html += '</td>';
 		if (balanceType == "kpl") {

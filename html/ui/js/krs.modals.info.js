@@ -44,7 +44,7 @@ var krs = (function(krs, $) {
 					} else if (key == "time") {
 						el.html(krs.formatTimestamp(state[key]));
 					} else {
-						el.html(String(state[key]).escapeHTML());
+						el.html(krs.escapeRespStr(state[key]));
 					}
 				}
 			}

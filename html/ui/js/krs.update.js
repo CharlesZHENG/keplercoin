@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi
 /**
  * @depends {krs.js}
  */
@@ -32,7 +32,7 @@ var krs = (function(krs, $) {
 	krs.isOutdated = false;
 
 	krs.checkAliasVersions = function() {
-		if (krs.downloadingBlockchain) {
+        if (krs.downloadingBlockchain && !(krs.state && krs.state.apiProxy)) {
 			$("#krs_update_explanation").find("span").hide();
 			$("#krs_update_explanation_blockchain_sync").show();
 			return;
@@ -148,8 +148,11 @@ var krs = (function(krs, $) {
         }
         var filename = bundle.prefix + krs.downloadedVersion.versionNr + "." + bundle.ext;
         var fileurl = "https://bitbucket.org/JeanLucPicard/KPL/downloads/" + filename;
+        var krsUpdateExplanation = $("#krs_update_explanation");
         if (window.java !== undefined) {
             window.java.popupHandlerURLChange(fileurl);
+            krsUpdateExplanation.html($.t("download_verification", { url: fileurl, hash: krs.downloadedVersion.hash }));
+            return;
         } else {
             $("#krs_update_iframe").attr("src", fileurl);
         }

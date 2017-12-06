@@ -69,7 +69,7 @@ var krs = (function(krs, $) {
         } else if (typeof value === "object") {
             return JSON.stringify(value);
         }
-        return String(value).escapeHTML();
+        return krs.escapeRespStr(value);
     };
 
     krs.jsondata.properties = function (response, type) {
@@ -84,29 +84,29 @@ var krs = (function(krs, $) {
             deleteAction = "<a href='#' class='btn btn-xs' data-toggle='modal' data-target='#delete_account_property_modal' " +
             "data-setter='" + response.setterRS + "' " +
             "data-recipient='" + krs.accountRS + "' " +
-            "data-property='" + String(response.property).escapeHTML() + "'>" + $.t("delete") + "</a>";
+                "data-property='" + krs.escapeRespStr(response.property) + "'>" + $.t("delete") + "</a>";
 
             if (response.setterRS == krs.accountRS) {
                 updateAction = "<a href='#' class='btn btn-xs' data-toggle='modal' data-target='#set_account_property_modal' " +
                 "data-recipient='" + krs.accountRS + "' " +
-                "data-property='" + String(response.property).escapeHTML() + "' " +
+                    "data-property='" + krs.escapeRespStr(response.property) + "' " +
                 "data-value='" + value + "'>" + $.t("update") + "</a>";
             }
         } else {
             deleteAction = "<a href='#' class='btn btn-xs' data-toggle='modal' data-target='#delete_account_property_modal' " +
             "data-setter='" + krs.accountRS + "' " +
             recipientToken +
-            "data-property='" + String(response.property).escapeHTML() + "'>" + $.t("delete") + "</a>";
+            "data-property='" + krs.escapeRespStr(response.property) + "'>" + $.t("delete") + "</a>";
 
             updateAction = "<a href='#' class='btn btn-xs' data-toggle='modal' data-target='#set_account_property_modal' " +
             recipientToken +
-            "data-property='" + String(response.property).escapeHTML() + "' " +
+            "data-property='" + krs.escapeRespStr(response.property) + "' " +
             "data-value='" + value + "'>" + $.t("update") + "</a>";
         }
 
         return {
             accountFormatted: type == INCOMING ? krs.getAccountLink(response, "setter") : krs.getAccountLink(response, "recipient"),
-            property: String(response.property).escapeHTML(),
+            property: krs.escapeRespStr(response.property),
             value: value,
             action_update: updateAction,
             action_delete: deleteAction

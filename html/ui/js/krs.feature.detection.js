@@ -20,30 +20,36 @@
 var krs = (function (krs) {
 
     var isDesktopApplication = navigator.userAgent.indexOf("JavaFX") >= 0;
+    var isPromiseSupported = (typeof Promise !== "undefined" && Promise.toString().indexOf("[native code]") !== -1);
 
-    krs.isIndexedDBSupported = function() {
+    krs.isIndexedDBSupported = function () {
         return window.indexedDB !== undefined;
     };
 
-    krs.isCoinExchangePageAvailable = function() {
+    krs.isCoinExchangePageAvailable = function () {
         return !isDesktopApplication; // JavaFX does not support CORS required by ShapeShift
     };
 
-    krs.isExternalLinkVisible = function() {
+    krs.isExternalLinkVisible = function () {
         // When using JavaFX add a link to a web wallet except on Linux since on Ubuntu it sometimes hangs
         return isDesktopApplication && navigator.userAgent.indexOf("Linux") == -1;
     };
 
-    krs.isPollGetState = function() {
-        return !isDesktopApplication; // When using JavaFX do not poll the server
+    krs.isPollGetState = function () {
+        // When using JavaFX do not poll the server unless it's a working as a proxy
+        return !isDesktopApplication || krs.state && krs.state.apiProxy;
     };
 
-    krs.isExportContactsAvailable = function() {
+    krs.isExportContactsAvailable = function () {
         return !isDesktopApplication; // When using JavaFX you cannot export the contact list
     };
 
-    krs.isShowDummyCheckbox = function() {
+    krs.isShowDummyCheckbox = function () {
         return isDesktopApplication && navigator.userAgent.indexOf("Linux") >= 0; // Correct rendering problem of checkboxes on Linux
+    };
+
+    krs.isDecodePeerHallmark = function() {
+        return isPromiseSupported;
     };
 
     return krs;

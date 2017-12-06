@@ -46,7 +46,7 @@ var krs = (function(krs, $) {
             adminPassword: krs.getAdminPassword()
         }, function (response) {
             if (response.errorCode) {
-                $.growl(response.errorDescription.escapeHTML());
+                $.growl(krs.escapeRespStr(response.errorDescription));
             } else {
                 $.growl($.t("search_index_refreshed"));
             }
@@ -80,6 +80,67 @@ var krs = (function(krs, $) {
             }
         });
     });
+    $("#client_status_modal").on("show.bs.modal", function() {
+        if (krs.state.isLightClient) {
+            $("#client_status_description").text($.t("light_client_description"));
+        } else {
+            $("#client_status_description").text($.t("api_proxy_description"));
+        }
+        if (krs.state.apiProxyPeer) {
+            $("#client_status_remote_peer").val(String(krs.state.apiProxyPeer).escapeHTML());
+            $("#client_status_set_peer").prop('disabled', true);
+            $("#client_status_blacklist_peer").prop('disabled', false);
+        } else {
+            $("#client_status_remote_peer").val("");
+            $("#client_status_set_peer").prop('disabled', false);
+            $("#client_status_blacklist_peer").prop('disabled', true);
+        }
+    });
+
+    $("#client_status_remote_peer").keydown(function() {
+        if ($(this).val() == krs.state.apiProxyPeer) {
+            $("#client_status_set_peer").prop('disabled', true);
+            $("#client_status_blacklist_peer").prop('disabled', false);
+        } else {
+            $("#client_status_set_peer").prop('disabled', false);
+            $("#client_status_blacklist_peer").prop('disabled', true);
+        }
+    });
+
+    krs.forms.setAPIProxyPeer = function ($modal) {
+        var data = krs.getFormData($modal.find("form:first"));
+        data.adminPassword = krs.getAdminPassword();
+        return {
+            "data": data
+        };
+    };
+
+    krs.forms.setAPIProxyPeerComplete = function(response) {
+        var announcedAddress = response.announcedAddress;
+        if (announcedAddress) {
+            krs.state.apiProxyPeer = announcedAddress;
+            $.growl($.t("remote_peer_updated", { peer: String(announcedAddress).escapeHTML() }));
+        } else {
+            $.growl($.t("remote_peer_selected_by_server"));
+        }
+        krs.updateDashboardMessage();
+    };
+
+    krs.forms.blacklistAPIProxyPeer = function ($modal) {
+        var data = krs.getFormData($modal.find("form:first"));
+        data.adminPassword = krs.getAdminPassword();
+        return {
+            "data": data
+        };
+    };
+
+    krs.forms.blacklistAPIProxyPeerComplete = function(response) {
+        if (response.done) {
+            krs.state.apiProxyPeer = null;
+            $.growl($.t("remote_peer_blacklisted"));
+        }
+        krs.updateDashboardMessage();
+    };
 
     return krs;
 }(krs || {}, jQuery));

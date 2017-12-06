@@ -149,7 +149,7 @@ var krs = (function(krs, $, undefined) {
 		var plugin = krs.plugins[pluginId];
 		var pluginkrsVersion = plugin.manifest["krsVersion"];
 		var pvList = pluginkrsVersion.split('.');
-		var currentkrsVersion = krs.state.version.replace(/[a-zA-Z]/g,'');
+		var currentkrsVersion = krs.appVersion.replace(/[a-zA-Z]/g,'');
 		var cvList = currentkrsVersion.split('.');
         var versionCompare = krs.versionCompare(pluginkrsVersion, currentkrsVersion);
 		if (versionCompare == 0) {

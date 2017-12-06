@@ -696,11 +696,19 @@ var krs = (function (krs, $, undefined) {
             + (isEscapedText ? text : String(text).escapeHTML()) + "</a>";
     };
 
+    krs.getPeerLink = function(address) {
+        if (!address ) {
+            return "(" + $.t("temporarily_disconnected") + ")";
+        }
+        return "<a href='#' class='show_peer_modal_action' data-address='" + String(address).escapeHTML() + "'>"
+            + String(address).escapeHTML() + "</a>";
+    };
+
     krs.setBackLink = function() {
         var backLink = $(".back-link");
         if (krs.modalStack.length > 0) {
             var backModalInfo = krs.modalStack[krs.modalStack.length - 1];
-            backLink.removeClass("show_transaction_modal_action show_account_modal_action show_block_modal_action show_ledger_modal_action dgs_show_picture_modal_action_purchase dgs_show_picture_modal_action_product");
+            backLink.removeClass("show_transaction_modal_action show_account_modal_action show_block_modal_action show_ledger_modal_action dgs_show_modal_action_purchase dgs_show_modal_action_product");
             backLink.addClass(backModalInfo.class);
             backLink.data(backModalInfo.key, backModalInfo.value);
             backLink.data("back", "true");
@@ -844,7 +852,7 @@ var krs = (function (krs, $, undefined) {
                 value = String(value);
             } else if (/_formatted$/i.test(key)) {
                 key = key.replace("_formatted", "");
-                value = String(value).escapeHTML();
+                value = krs.escapeRespStr(value);
             } else if ((key == "quantity" || key == "units" || key == "initial_buy_supply" || key == "initial_sell_supply" ||
                 key == "total_buy_limit" || key == "total_sell_limit" || key == "units_exchanged" || key == "total_exchanged" ||
                 key == "initial_units" || key == "reserve_units" || key == "max_units" || key == "quantity_traded" || key == "initial_quantity") && $.isArray(value)) {
@@ -856,11 +864,11 @@ var krs = (function (krs, $, undefined) {
             } else if (key == "price" || key == "total" || key == "amount" || key == "fee" || key == "refund" || key == "discount") {
                 value = krs.formatAmount(new BigInteger(String(value))) + " KPL";
             } else if (key == "sender" || key == "recipient" || key == "account" || key == "seller" || key == "buyer" || key == "lessee") {
-                value = "<a href='#' data-user='" + String(value).escapeHTML() + "' class='show_account_modal_action'>" + krs.getAccountTitle(value) + "</a>";
+                value = "<a href='#' data-user='" + krs.escapeRespStr(value) + "' class='show_account_modal_action'>" + krs.getAccountTitle(value) + "</a>";
             } else if (key == "request_processing_time") { /* Skip from displaying request processing time */
                 continue;
             } else {
-                value = String(value).escapeHTML().nl2br();
+                value = krs.escapeRespStr(value).nl2br();
             }
 
             rows += "<tr><td style='font-weight:bold" + (fixed ? ";width:150px" : "") + "'>" + $.t(key).escapeHTML() + (type ? " " + type.escapeHTML() : "") + ":</td><td style='width:90%;word-break:break-all'>" + value + "</td></tr>";
@@ -1629,6 +1637,37 @@ var krs = (function (krs, $, undefined) {
         } else {
             return 0;
         }
+    };
+
+    /**
+     * Escapes all strings in a response object
+     * @param obj
+     */
+    krs.escapeResponseObjStrings = function (obj) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                var val = obj[key];
+                if (typeof val === 'string') {
+                    obj[key] = String(val).escapeHTML();
+                } else if (typeof val === 'object') {
+                    NRS.escapeResponseObjStrings(obj[key]);
+                }
+            }
+        }
+    };
+
+    /**
+     * Escapes a string that was returned in response from the server.
+     * This is used to avoid the double escaping of strings since the response strings started to be escaped in a global
+     * level because of the proxy feature
+     * @param val
+     */
+    krs.escapeRespStr = function (val) {
+        return String(val).unescapeHTML().escapeHTML();
+    };
+
+    krs.unescapeRespStr = function (val) {
+        return String(val).unescapeHTML();
     };
 
     return krs;

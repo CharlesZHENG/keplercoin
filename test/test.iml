@@ -10,5 +10,6 @@
     <orderEntry type="library" name="lib1" level="project" />
     <orderEntry type="library" name="testlib" level="project" />
     <orderEntry type="module" module-name="keplercoin0" />
+    <orderEntry type="module" module-name="Kpl" />
   </component>
 </module>

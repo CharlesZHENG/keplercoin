@@ -376,8 +376,8 @@ var krs = (function (krs, $, undefined) {
                     ungrouped = false;
                     rows += "<a href='#' class='list-group-item list-group-item-header" + (asset.groupName == "Ignore List" ? " no-context" : "") + "'";
                     rows += (asset.groupName != "Ignore List" ? " data-context='asset_exchange_sidebar_group_context' " : "data-context=''");
-                    rows += " data-groupname='" + asset.groupName.escapeHTML() + "' data-closed='" + isClosedGroup + "'>";
-                    rows += "<h4 class='list-group-item-heading'>" + asset.groupName.toUpperCase().escapeHTML() + "</h4>";
+                    rows += " data-groupname='" + krs.escapeRespStr(asset.groupName) + "' data-closed='" + isClosedGroup + "'>";
+                    rows += "<h4 class='list-group-item-heading'>" + krs.escapeRespStr(asset.groupName).toUpperCase().escapeHTML() + "</h4>";
                     rows += "<i class='fa fa-angle-" + (isClosedGroup ? "right" : "down") + " group_icon'></i></h4></a>";
                 } else {
                     ungrouped = true;
@@ -402,7 +402,7 @@ var krs = (function (krs, $, undefined) {
 
             rows += "<a href='#' class='list-group-item list-group-item-" + (ungrouped ? "ungrouped" : "grouped") + (ownsAsset ? " owns_asset" : " not_owns_asset") + "' ";
             rows += "data-cache='" + i + "' ";
-            rows += "data-asset='" + String(asset.asset).escapeHTML() + "'" + (!ungrouped ? " data-groupname='" + asset.groupName.escapeHTML() + "'" : "");
+            rows += "data-asset='" + krs.escapeRespStr(asset.asset) + "'" + (!ungrouped ? " data-groupname='" + krs.escapeRespStr(asset.groupName) + "'" : "");
             rows += (isClosedGroup ? " style='display:none'" : "") + " data-closed='" + isClosedGroup + "'>";
             rows += "<h4 class='list-group-item-heading'>" + asset.name.escapeHTML() + "</h4>";
             rows += "<p class='list-group-item-text'><span>" + $.t('quantity') + "</span>: " + krs.formatQuantity(ownsQuantityQNT, asset.decimals) + "</p>";
@@ -554,18 +554,18 @@ var krs = (function (krs, $, undefined) {
             }, 0);
             $("#asset_account").html(krs.getAccountLink(asset, "account"));
             $("#asset_id").html(krs.getTransactionLink(assetId));
-            $("#asset_decimals").html(String(asset.decimals).escapeHTML());
-            $("#asset_name").html(String(asset.name).escapeHTML());
+            $("#asset_decimals").html(krs.escapeRespStr(asset.decimals));
+            $("#asset_name").html(krs.escapeRespStr(asset.name));
             $("#asset_description").html(String(asset.description).autoLink());
-            $(".asset_name").html(String(asset.name).escapeHTML());
+            $(".asset_name").html(krs.escapeRespStr(asset.name));
             $("#sell_asset_button").data("asset", assetId);
             $("#buy_asset_button").data("asset", assetId);
             $("#view_asset_distribution_link").data("asset", assetId);
             $("#sell_asset_for_KPL").html($.t("sell_asset_for_KPL", {
-                "assetName": String(asset.name).escapeHTML()
+                "assetName": krs.escapeRespStr(asset.name)
             }));
             $("#buy_asset_with_KPL").html($.t("buy_asset_with_KPL", {
-                "assetName": String(asset.name).escapeHTML()
+                "assetName": krs.escapeRespStr(asset.name)
             }));
             $("#sell_asset_price, #buy_asset_price").val("");
             $("#sell_asset_quantity, #sell_asset_total, #buy_asset_quantity, #buy_asset_total").val("0");
@@ -694,7 +694,7 @@ var krs = (function (krs, $, undefined) {
                 }
                 var statusIcon = krs.getTransactionStatusIcon(order);
                 var className = (order.account == krs.account ? "your-order" : "");
-                rows += "<tr class='" + className + "' data-transaction='" + String(order.order).escapeHTML() + "' data-quantity='" + order.quantityQNT.toString().escapeHTML() + "' data-price='" + order.priceNQT.toString().escapeHTML() + "'>" +
+                rows += "<tr class='" + className + "' data-transaction='" + krs.escapeRespStr(order.order) + "' data-quantity='" + order.quantityQNT.toString().escapeHTML() + "' data-price='" + order.priceNQT.toString().escapeHTML() + "'>" +
                     "<td>" + krs.getTransactionLink(order.order, statusIcon, true) + "</td>" +
                     "<td>" + krs.getAccountLink(order, "account", currentAsset.accountRS, "Asset Issuer") + "</td>" +
                     "<td class='numeric'>" + krs.formatQuantity(order.quantityQNT, currentAsset.decimals, false, quantityDecimals) + "</td>" +
@@ -1218,7 +1218,7 @@ var krs = (function (krs, $, undefined) {
                 "asset": assetId
             }], function (error, asset) {
                 asset = asset[0];
-                $("#asset_exchange_group_title").html(String(asset.name).escapeHTML());
+                $("#asset_exchange_group_title").html(krs.escapeRespStr(asset.name));
                 krs.storageSelect("assets", [], function (error, assets) {
                     var groupNames = [];
                     $.each(assets, function (index, asset) {
@@ -1369,7 +1369,7 @@ var krs = (function (krs, $, undefined) {
                     trade.totalNQT = new BigInteger(krs.calculateOrderTotalNQT(trade.priceNQT, trade.quantityQNT));
                     var type = (trade.buyerRS == krs.accountRS ? "buy" : "sell");
                     rows += "<tr>" +
-                        "<td><a href='#' data-goto-asset='" + String(trade.asset).escapeHTML() + "'>" + String(trade.name).escapeHTML() + "</a></td>" +
+                        "<td><a href='#' data-goto-asset='" + krs.escapeRespStr(trade.asset) + "'>" + krs.escapeRespStr(trade.name) + "</a></td>" +
                         "<td>" + krs.formatTimestamp(trade.timestamp) + "</td>" +
                         "<td>" + $.t(trade.tradeType) + "</td>" +
                         "<td class='numeric'>" + krs.formatQuantity(trade.quantityQNT, trade.decimals, false, quantityDecimals) + "</td>" +
@@ -1410,7 +1410,7 @@ var krs = (function (krs, $, undefined) {
                     var type = (transfer.recipientRS == krs.accountRS ? "receive" : "send");
                     rows += "<tr>" +
                         "<td>" + krs.getTransactionLink(transfer.assetTransfer) + "</td>" +
-                        "<td><a href='#' data-goto-asset='" + String(transfer.asset).escapeHTML() + "'>" + String(transfer.name).escapeHTML() + "</a></td>" +
+                        "<td><a href='#' data-goto-asset='" + krs.escapeRespStr(transfer.asset) + "'>" + krs.escapeRespStr(transfer.name) + "</a></td>" +
                         "<td>" + krs.formatTimestamp(transfer.timestamp) + "</td>" +
                         "<td style='" + (type == "receive" ? "color:green" : "color:red") + "' class='numeric'>" + krs.formatQuantity(transfer.quantityQNT, transfer.decimals, false, quantityDecimals) + "</td>" +
                         "<td>" + krs.getAccountLink(transfer, "recipient") + "</td>" +
@@ -1447,7 +1447,7 @@ var krs = (function (krs, $, undefined) {
                     deletes[i].quantityQNT = new BigInteger(deletes[i].quantityQNT);
                     rows += "<tr>" +
                         "<td>" + krs.getTransactionLink(deletes[i].assetDelete) + "</td>" +
-                        "<td><a href='#' data-goto-asset='" + String(deletes[i].asset).escapeHTML() + "'>" + String(deletes[i].name).escapeHTML() + "</a></td>" +
+                        "<td><a href='#' data-goto-asset='" + String(deletes[i].asset).escapeHTML() + "'>" + krs.escapeRespStr(deletes[i].name) + "</a></td>" +
                         "<td>" + krs.formatTimestamp(deletes[i].timestamp) + "</td>" +
                         "<td class='numeric'>" + krs.formatQuantity(deletes[i].quantityQNT, deletes[i].decimals, false, quantityDecimals) + "</td>" +
                         "</tr>";
@@ -1605,8 +1605,8 @@ var krs = (function (krs, $, undefined) {
             if (highestBidOrder != -1) {
                 var totalNQT = new BigInteger(krs.calculateOrderTotalNQT(asset.balanceQNT, highestBidOrder));
             }
-            rows += "<tr data-asset='" + String(asset.asset).escapeHTML() + "'>" +
-                "<td><a href='#' data-goto-asset='" + String(asset.asset).escapeHTML() + "'>" + String(asset.name).escapeHTML() + "</a></td>" +
+            rows += "<tr data-asset='" + krs.escapeRespStr(asset.asset) + "'>" +
+                "<td><a href='#' data-goto-asset='" + krs.escapeRespStr(asset.asset) + "'>" + krs.escapeRespStr(asset.name) + "</a></td>" +
                 "<td class='quantity numeric'>" + krs.formatQuantity(asset.balanceQNT, asset.decimals, false, quantityDecimals) + "</td>" +
                 "<td class='numeric'>" + krs.formatQuantity(asset.quantityQNT, asset.decimals, false, totalDecimals) + "</td>" +
                 "<td class='numeric'>" + percentageAsset + "%</td>" +
@@ -1614,8 +1614,8 @@ var krs = (function (krs, $, undefined) {
                 "<td class='numeric'>" + (highestBidOrder != -1 ? krs.formatOrderPricePerWholeQNT(highestBidOrder, asset.decimals, bidDecimals) : "") + "</td>" +
                 "<td class='numeric'>" + (highestBidOrder != -1 ? krs.formatAmount(totalNQT, false, false, valueDecimals) : "") + "</td>" +
                 "<td>" +
-                "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + String(asset.asset).escapeHTML() + "' data-name='" + String(asset.name).escapeHTML() + "' data-decimals='" + String(asset.decimals).escapeHTML() + "' data-action='transfer_asset'>" + $.t("transfer") + "</a>" +
-                "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + String(asset.asset).escapeHTML() + "' data-name='" + String(asset.name).escapeHTML() + "' data-decimals='" + String(asset.decimals).escapeHTML() + "' data-action='delete_shares'>" + $.t("delete_shares") + "</a>" +
+                "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + krs.escapeRespStr(asset.asset) + "' data-name='" + String(asset.name).escapeHTML() + "' data-decimals='" + String(asset.decimals).escapeHTML() + "' data-action='transfer_asset'>" + $.t("transfer") + "</a>" +
+                "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_asset_modal' data-asset='" + krs.escapeRespStr(asset.asset) + "' data-name='" + String(asset.name).escapeHTML() + "' data-decimals='" + String(asset.decimals).escapeHTML() + "' data-action='delete_shares'>" + $.t("delete_shares") + "</a>" +
                 "</td>" +
                 "</tr>";
         }
@@ -1904,7 +1904,7 @@ var krs = (function (krs, $, undefined) {
             completeOrder.priceNQT = new BigInteger(completeOrder.priceNQT);
             completeOrder.quantityQNT = new BigInteger(completeOrder.quantityQNT);
             completeOrder.totalNQT = new BigInteger(krs.calculateOrderTotalNQT(completeOrder.quantityQNT, completeOrder.priceNQT));
-            rows += "<tr data-order='" + String(completeOrder.order).escapeHTML() + "'><td><a href='#' data-goto-asset='" + String(completeOrder.asset).escapeHTML() + "'>" + completeOrder.assetName.escapeHTML() + "</a></td><td>" + krs.formatQuantity(completeOrder.quantityQNT, completeOrder.decimals) + "</td><td>" + krs.formatOrderPricePerWholeQNT(completeOrder.priceNQT, completeOrder.decimals) + "</td><td>" + krs.formatAmount(completeOrder.totalNQT) + "</td><td class='cancel'><a href='#' data-toggle='modal' data-target='#cancel_order_modal' data-order='" + String(completeOrder.order).escapeHTML() + "' data-type='" + type + "'>" + $.t("cancel") + "</a></td></tr>";
+            rows += "<tr data-order='" + krs.escapeRespStr(completeOrder.order) + "'><td><a href='#' data-goto-asset='" + String(completeOrder.asset).escapeHTML() + "'>" + completeOrder.assetName.escapeHTML() + "</a></td><td>" + krs.formatQuantity(completeOrder.quantityQNT, completeOrder.decimals) + "</td><td>" + krs.formatOrderPricePerWholeQNT(completeOrder.priceNQT, completeOrder.decimals) + "</td><td>" + krs.formatAmount(completeOrder.totalNQT) + "</td><td class='cancel'><a href='#' data-toggle='modal' data-target='#cancel_order_modal' data-order='" + String(completeOrder.order).escapeHTML() + "' data-type='" + type + "'>" + $.t("cancel") + "</a></td></tr>";
         }
         openOrdersTable.find("tbody").empty().append(rows);
         krs.dataLoadFinished(openOrdersTable);
@@ -1966,7 +1966,7 @@ var krs = (function (krs, $, undefined) {
                     $noneOption.html($.t('no_asset_selected_for_approval', 'No Asset Selected'));
                     $.each(response.accountAssets, function (key, asset) {
                         var idString = String(asset.asset);
-                        var $option = $('<option value="' + idString + '">' + String(asset.name).escapeHTML() + '</option>');
+                        var $option = $('<option value="' + idString + '">' + krs.escapeRespStr(asset.name) + '</option>');
                         if (idString == selectedApprovalAsset) {
                             $option.attr('selected', true);
                             assetSelected = true;

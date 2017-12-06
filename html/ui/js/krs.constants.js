@@ -68,7 +68,9 @@ var krs = (function (krs, $) {
         'EPOCH_BEGINNING': 0,
         'FORGING': 'forging',
         'NOT_FORGING': 'not_forging',
-        'UNKNOWN': 'unknown'
+        'UNKNOWN': 'unknown',
+        'LAST_KNOWN_BLOCK': {id: "3598118011993378267", height: "907000"},
+        'LAST_KNOWN_TESTNET_BLOCK': {id: "13314497267292659355", height: "847000"}
     };
 
     krs.loadAlgorithmList = function (algorithmSelect, isPhasingHash) {
@@ -88,7 +90,7 @@ var krs = (function (krs, $) {
     krs.loadServerConstants = function () {
         krs.sendRequest("getConstants", {}, function (response) {
             if (response.genesisAccountId) {
-                console.log('lalalallalalalalal',response);
+                console.log('lalalallalalalalal', response);
                 krs.constants.SERVER = response;
                 krs.constants.VOTING_MODELS = response.votingModels;
                 krs.constants.MIN_BALANCE_MODELS = response.minBalanceModels;
@@ -107,6 +109,7 @@ var krs = (function (krs, $) {
                 krs.constants.SHUFFLING_PARTICIPANTS_STATES = response.shufflingParticipantStates;
                 krs.constants.DISABLED_APIS = response.disabledAPIs;
                 krs.constants.DISABLED_API_TAGS = response.disabledAPITags;
+                krs.constants.PEER_STATES = response.peerStates;
                 krs.loadTransactionTypeConstants(response);
             }
         }, false);
@@ -150,8 +153,16 @@ var krs = (function (krs, $) {
     krs.getShufflingParticipantState = function (code) {
         return getKeyByValue(krs.constants.SHUFFLING_PARTICIPANTS_STATES, code);
     };
+    
+    krs.getPeerState = function (code) {
+        return getKeyByValue(krs.constants.PEER_STATES, code);
+    };
 
-    krs.isRequireBlockchain = function(requestType) {
+    krs.getECBlock = function (isTestNet) {
+        return isTestNet ? krs.constants.LAST_KNOWN_TESTNET_BLOCK : krs.constants.LAST_KNOWN_BLOCK;
+    };
+
+    krs.isRequireBlockchain = function (requestType) {
         if (!krs.constants.REQUEST_TYPES[requestType]) {
             // For requests invoked before the getConstants request returns,
             // we implicitly assume that they do not require the blockchain
@@ -160,7 +171,7 @@ var krs = (function (krs, $) {
         return true == krs.constants.REQUEST_TYPES[requestType].requireBlockchain;
     };
 
-    krs.isRequirePost = function(requestType) {
+    krs.isRequirePost = function (requestType) {
         if (!krs.constants.REQUEST_TYPES[requestType]) {
             // For requests invoked before the getConstants request returns
             // we implicitly assume that they can use GET
@@ -169,7 +180,7 @@ var krs = (function (krs, $) {
         return true == krs.constants.REQUEST_TYPES[requestType].requirePost;
     };
 
-    krs.isRequestTypeEnabled = function(requestType) {
+    krs.isRequestTypeEnabled = function (requestType) {
         if ($.isEmptyObject(krs.constants.REQUEST_TYPES)) {
             return true;
         }
@@ -204,7 +215,7 @@ var krs = (function (krs, $) {
         } else if (requestType == "sendMessage") {
             config.selector = "#upload_file_message";
             if (data.encrypt_message) {
-                config.requestParam = "encryptedMessageFile";    
+                config.requestParam = "encryptedMessageFile";
             } else {
                 config.requestParam = "messageFile";
             }
@@ -215,13 +226,13 @@ var krs = (function (krs, $) {
         return null;
     };
 
-    krs.isApiEnabled = function(depends) {
+    krs.isApiEnabled = function (depends) {
         if (!depends) {
             return true;
         }
         var tags = depends.tags;
         if (tags) {
-            for (var i=0; i < tags.length; i++) {
+            for (var i = 0; i < tags.length; i++) {
                 if (!tags[i].enabled) {
                     return false;
                 }
@@ -229,7 +240,7 @@ var krs = (function (krs, $) {
         }
         var apis = depends.apis;
         if (apis) {
-            for (i=0; i < apis.length; i++) {
+            for (i = 0; i < apis.length; i++) {
                 if (apis[i] && !apis[i].enabled) {
                     return false;
                 }

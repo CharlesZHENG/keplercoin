@@ -57,11 +57,11 @@ var krs = (function (krs, $, undefined) {
 
                     if (alias.aliasURI.length > 100) {
                         alias.shortAliasURI = alias.aliasURI.substring(0, 100) + "...";
-                        alias.shortAliasURI = alias.shortAliasURI.escapeHTML();
+                        alias.shortAliasURI = krs.escapeRespStr(alias.shortAliasURI);
                     } else {
-                        alias.shortAliasURI = alias.aliasURI.escapeHTML();
+                        alias.shortAliasURI = krs.escapeRespStr(alias.aliasURI);
                     }
-                    alias.aliasURI = alias.aliasURI.escapeHTML();
+                    alias.aliasURI = krs.escapeRespStr(alias.aliasURI);
 
                     var allowCancel = false;
                     if ("priceNQT" in alias) {
@@ -84,7 +84,7 @@ var krs = (function (krs, $, undefined) {
                     if (alias.status != "/") {
                         alias.status = "<span class='label label-small label-info'>" + alias.status + "</span>";
                     }
-                    rows += "<tr data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML() + "'><td class='alias'>" + String(alias.aliasName).escapeHTML() + "</td><td class='uri'>" + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>" : alias.shortAliasURI) + "</td><td class='status'>" + alias.status + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("edit") + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("transfer") + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("sell") + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("cancel_sale") + "</a>" : "") + " <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#delete_alias_modal' data-alias='" + String(alias.aliasName).escapeHTML() + "'>" + $.t("delete") + "</a></td></tr>";
+                    rows += "<tr data-alias='" + krs.escapeRespStr(alias.aliasName).toLowerCase().escapeHTML() + "'><td class='alias'>" + krs.escapeRespStr(alias.aliasName) + "</td><td class='uri'>" + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + alias.aliasURI + "' target='_blank'>" + alias.shortAliasURI + "</a>" : alias.shortAliasURI) + "</td><td class='status'>" + alias.status + "</td><td style='white-space:nowrap'><a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#register_alias_modal' data-alias='" + krs.escapeRespStr(alias.aliasName) + "'>" + $.t("edit") + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#transfer_alias_modal' data-alias='" + krs.escapeRespStr(alias.aliasName) + "'>" + $.t("transfer") + "</a> <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#sell_alias_modal' data-alias='" + krs.escapeRespStr(alias.aliasName) + "'>" + $.t("sell") + "</a>" + (allowCancel ? " <a class='btn btn-xs btn-default cancel_alias_sale' href='#' data-toggle='modal' data-target='#cancel_alias_sale_modal' data-alias='" + krs.escapeRespStr(alias.aliasName) + "'>" + $.t("cancel_sale") + "</a>" : "") + " <a class='btn btn-xs btn-default' href='#' data-toggle='modal' data-target='#delete_alias_modal' data-alias='" + krs.escapeRespStr(alias.aliasName) + "'>" + $.t("delete") + "</a></td></tr>";
                 }
 
                 aliasesTable.find("tbody").empty().append(rows);
@@ -297,7 +297,7 @@ var krs = (function (krs, $, undefined) {
                         "type": "danger"
                     });
                 } else {
-                    $modal.find("input[name=recipient]").val(String(response.accountRS).escapeHTML());
+                    $modal.find("input[name=recipient]").val(krs.escapeRespStr(response.accountRS));
                     $modal.find("input[name=aliasName]").val(alias.escapeHTML());
                     $modal.find(".alias_name_display").html(alias.escapeHTML());
                     $modal.find("input[name=amountKPL]").val(krs.convertToKPL(response.priceNQT)).prop("readonly", true);
@@ -496,7 +496,7 @@ var krs = (function (krs, $, undefined) {
 
     krs.forms.setAliasError = function (response, data) {
         if (response && response.errorCode && response.errorCode == 8) {
-            var errorDescription = response.errorDescription.escapeHTML();
+            var errorDescription = krs.escapeRespStr(response.errorDescription);
 
             krs.sendRequest("getAlias", {
                 "aliasName": data.aliasName
@@ -508,11 +508,11 @@ var krs = (function (krs, $, undefined) {
                         if (response.buyer == krs.account) {
                             message = $.t("alias_sale_direct_offer", {
                                 "kpl": krs.formatAmount(response.priceNQT)
-                            }) + " <a href='#' data-alias='" + String(response.aliasName).escapeHTML() + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>";
+                            }) + " <a href='#' data-alias='" + krs.escapeRespStr(response.aliasName) + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>";
                         } else if (typeof response.buyer == "undefined") {
                             message = $.t("alias_sale_indirect_offer", {
                                 "kpl": krs.formatAmount(response.priceNQT)
-                            }) + " <a href='#' data-alias='" + String(response.aliasName).escapeHTML() + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>";
+                            }) + " <a href='#' data-alias='" + krs.escapeRespStr(response.aliasName) + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>";
                         } else {
                             message = $.t("error_alias_sale_different_account");
                         }
@@ -569,7 +569,7 @@ var krs = (function (krs, $, undefined) {
                     "type": "danger"
                 });
             } else {
-                $("#alias_info_modal_alias").html(String(response.aliasName).escapeHTML());
+                $("#alias_info_modal_alias").html(krs.escapeRespStr(response.aliasName));
 
                 var data = {
                     "account": krs.getAccountTitle(response, "account"),
@@ -581,11 +581,11 @@ var krs = (function (krs, $, undefined) {
                     if (response.buyer == krs.account) {
                         $("#alias_sale_callout").html($.t("alias_sale_direct_offer", {
                             "kpl": krs.formatAmount(response.priceNQT)
-                        }) + " <a href='#' data-alias='" + String(response.aliasName).escapeHTML() + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>").show();
+                        }) + " <a href='#' data-alias='" + krs.escapeRespStr(response.aliasName) + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>").show();
                     } else if (typeof response.buyer == "undefined") {
                         $("#alias_sale_callout").html($.t("alias_sale_indirect_offer", {
                             "kpl": krs.formatAmount(response.priceNQT)
-                        }) + " <a href='#' data-alias='" + String(response.aliasName).escapeHTML() + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>").show();
+                        }) + " <a href='#' data-alias='" + krs.escapeRespStr(response.aliasName) + "' data-toggle='modal' data-target='#buy_alias_modal'>" + $.t("buy_it_q") + "</a>").show();
                     } else {
                         $("#alias_sale_callout").html($.t("error_alias_sale_different_account")).show();
                     }

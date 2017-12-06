@@ -13,7 +13,7 @@
  * Removal or modification of this copyright notice is prohibited.            *
  *                                                                            *
  ******************************************************************************/
-
+//Kiwi
 /**
  * @depends {krs.js}
  */
@@ -236,14 +236,18 @@ var krs = (function (krs, $, undefined) {
                 });
             } else {
                 //ok, accountId matches..continue with the real request.
-                krs.processAjaxRequest(requestType, data, callback, isAsync);
+                krs.processAjaxRequest(requestType, data, callback, isAsync, noProxy);
             }
         } else {
-            krs.processAjaxRequest(requestType, data, callback, isAsync);
+            krs.processAjaxRequest(requestType, data, callback, isAsync, noProxy);
         }
     };
 
-    krs.processAjaxRequest = function (requestType, data, callback, isAsync) {
+    function isVolatileRequest(doNotSign, type, requestType) {
+        return (!krs.isLocalHost || doNotSign || krs.state.apiProxy) && type == "POST" && !krs.isSubmitPassphrase(requestType);
+    }
+
+    krs.processAjaxRequest = function (requestType, data, callback, isAsync, noProxy) {
         var extra = null;
         if (data["_extra"]) {
             extra = data["_extra"];
@@ -272,7 +276,11 @@ var krs = (function (krs, $, undefined) {
         }
 
         var type = (krs.isRequirePost(requestType) || "secretPhrase" in data || "doNotSign" in data || "adminPassword" in data ? "POST" : "GET");
-        var url = krs.server + "/kpl?requestType=" + requestType;
+        var url = krs.getRequestPath();
+        if (noProxy) {
+            url = "/kpl";
+        }
+        url += "?requestType=" + requestType;
 
         if (type == "GET") {
             if (typeof data == "string") {
@@ -301,7 +309,8 @@ var krs = (function (krs, $, undefined) {
         }
 
         var secretPhrase = "";
-        if ((!krs.isLocalHost || data.doNotSign) && type == "POST" && !krs.isSubmitPassphrase(requestType)) {
+        var isVolatile = isVolatileRequest(data.doNotSign, type, requestType);
+        if (isVolatile) {
             if (krs.rememberPassword) {
                 secretPhrase = _password;
             } else {
@@ -316,6 +325,9 @@ var krs = (function (krs, $, undefined) {
                 data.publicKey = krs.generatePublicKey(secretPhrase);
                 krs.accountInfo.publicKey = data.publicKey;
             }
+            var ecBlock = krs.getECBlock(krs.isTestNet);
+            data.ecBlockId = ecBlock.id;
+            data.ecBlockHeight = ecBlock.height;
         } else if (type == "POST" && krs.rememberPassword) {
             data.secretPhrase = _password;
         }
@@ -390,6 +402,7 @@ var krs = (function (krs, $, undefined) {
             contentType: contentType,
             processData: processData
         }).done(function (response) {
+            krs.escapeResponseObjStrings(response);
             if (krs.console) {
                 krs.addToConsole(this.url, this.type, this.data, response);
             }
@@ -442,7 +455,8 @@ var krs = (function (krs, $, undefined) {
                                 }
                             },
                             function (callback) {
-                                if (response.unsignedTransactionBytes && !krs.verifyTransactionBytes(converters.hexStringToByteArray(response.unsignedTransactionBytes), requestType, data, response.transactionJSON.attachment)) {
+                                if (response.unsignedTransactionBytes &&
+                                    !krs.verifyTransactionBytes(converters.hexStringToByteArray(response.unsignedTransactionBytes), requestType, data, response.transactionJSON.attachment,isVolatile)) {
                                     callback({
                                         "errorCode": 1,
                                         "errorDescription": $.t("error_bytes_validation_server")
@@ -493,7 +507,7 @@ var krs = (function (krs, $, undefined) {
         });
     };
 
-    krs.verifyAndSignTransactionBytes = function (transactionBytes, signature, requestType, data, callback, response, extra) {
+    krs.verifyAndSignTransactionBytes = function (transactionBytes, signature, requestType, data, callback, response, extra,isVerifyECBlock) {
         var byteArray = converters.hexStringToByteArray(transactionBytes);
         if (!krs.verifyTransactionBytes(byteArray, requestType, data, response.transactionJSON.attachment)) {
             callback({
@@ -515,7 +529,7 @@ var krs = (function (krs, $, undefined) {
         }
     };
 
-    krs.verifyTransactionBytes = function (byteArray, requestType, data, attachment) {
+    krs.verifyTransactionBytes = function (byteArray, requestType, data, attachment,isVerifyECBlock) {
         var transaction = {};
         transaction.type = byteArray[0];
         transaction.version = (byteArray[1] & 0xF0) >> 4;
@@ -540,6 +554,15 @@ var krs = (function (krs, $, undefined) {
             transaction.flags = converters.byteArrayToSignedInt32(byteArray, 160);
             transaction.ecBlockHeight = String(converters.byteArrayToSignedInt32(byteArray, 164));
             transaction.ecBlockId = String(converters.byteArrayToBigInteger(byteArray, 168));
+            if (isVerifyECBlock) {
+                var ecBlock = krs.getECBlock(krs.isTestNet);
+                if (transaction.ecBlockHeight != ecBlock.height) {
+                    return false;
+                }
+                if (transaction.ecBlockId != ecBlock.id) {
+                    return false;
+                }
+            }
         }
 
         if (transaction.publicKey != krs.accountInfo.publicKey && transaction.publicKey != data.publicKey) {
@@ -1494,8 +1517,9 @@ var krs = (function (krs, $, undefined) {
     };
 
     krs.broadcastTransactionBytes = function (transactionData, callback, originalResponse, originalData) {
+        var requestType = krs.state.apiProxy ? "sendTransaction": "broadcastTransaction";
         $.ajax({
-            url: krs.server + "/kpl?requestType=broadcastTransaction",
+            url: krs.getRequestPath() + "?requestType=" + requestType,
             crossDomain: true,
             dataType: "json",
             type: "POST",
@@ -1503,9 +1527,11 @@ var krs = (function (krs, $, undefined) {
             async: true,
             data: {
                 "transactionBytes": transactionData,
-                "prunableAttachmentJSON": JSON.stringify(originalResponse.transactionJSON.attachment)
+                "prunableAttachmentJSON": JSON.stringify(originalResponse.transactionJSON.attachment),
+                "adminPassword": krs.settings.admin_password
             }
         }).done(function (response) {
+            krs.escapeResponseObjStrings(response);
             if (krs.console) {
                 krs.addToConsole(this.url, this.type, this.data, response);
             }
@@ -1599,7 +1625,8 @@ var krs = (function (krs, $, undefined) {
             return -1;
         }
         pos++;
-        if (String(converters.byteArrayToBigInteger(byteArray, pos)) !== String(data[prefix + "Quorum"])) {
+        var quorum = String(converters.byteArrayToBigInteger(byteArray, pos));
+        if (quorum !== "0" && quorum !== String(data[prefix + "Quorum"])) {
             return -1;
         }
         pos += 8;
@@ -1623,7 +1650,8 @@ var krs = (function (krs, $, undefined) {
             return -1;
         }
         pos += 8;
-        if (String(byteArray[pos]) !== String(data[prefix + "MinBalanceModel"])) {
+        var minBalanceModel = String(byteArray[pos]);
+        if (minBalanceModel !== "0" && minBalanceModel !== String(data[prefix + "MinBalanceModel"])) {
             return -1;
         }
         pos++;

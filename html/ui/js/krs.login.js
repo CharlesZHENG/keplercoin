@@ -116,6 +116,12 @@ var krs = (function(krs, $, undefined) {
 
         if (password != PassPhraseGenerator.passPhrase) {
             accountPhraseGeneratorPanel.find(".step_3 .callout").show();
+            var now = moment();
+            var nextSnapshot = krs.lastBlockHeight + response.distributionStep - ((krs.lastBlockHeight - response.distributionStart) % response.distributionStep);
+            $("#ardor_distribution_next_snapshot").html(moment.duration(krs.getBlockHeightMoment(nextSnapshot).diff(now)).humanize());
+            var nextUpdate = krs.lastBlockHeight + response.distributionFrequency - ((krs.lastBlockHeight - response.distributionStart) % response.distributionFrequency);
+            $("#ardor_distribution_next_balance_update").html(moment.duration(krs.getBlockHeightMoment(nextUpdate).diff(now)).humanize());
+
         } else {
             krs.newlyCreatedAccount = true;
             krs.login(true,password);
@@ -191,6 +197,10 @@ var krs = (function(krs, $, undefined) {
         krs.resetEncryptionState();
         krs.setServerPassword(null);
         krs.rememberPassword = false;
+        krs.account = "";
+        krs.accountRS = "";
+        krs.publicKey = "";
+        krs.accountInfo = {};
         $("#remember_password").prop("checked", false);
 
         // Reset other functional state
@@ -292,20 +302,20 @@ var krs = (function(krs, $, undefined) {
             //this is done locally..
             krs.sendRequest(accountRequest, requestVariable, function(response, data) {
                 if (!response.errorCode) {
-                    krs.account = String(response.account).escapeHTML();
-                    krs.accountRS = String(response.accountRS).escapeHTML();
+                    krs.account = krs.escapeRespStr(response.account);
+                    krs.accountRS = krs.escapeRespStr(response.accountRS);
                     if (isPassphraseLogin) {
                         krs.publicKey = krs.getPublicKey(converters.stringToHexString(id));
                     } else {
-                        krs.publicKey = String(response.publicKey).escapeHTML();
+                        krs.publicKey = krs.escapeRespStr(response.publicKey);
                     }
                 }
                 if (!isPassphraseLogin && response.errorCode == 5) {
-                    krs.account = String(response.account).escapeHTML();
-                    krs.accountRS = String(response.accountRS).escapeHTML();
+                    krs.account = krs.escapeRespStr(response.account);
+                    krs.accountRS = krs.escapeRespStr(response.accountRS);
                 }
                 if (!krs.account) {
-                    $.growl($.t("error_find_account_id", { accountRS: (data && data.account ? String(data.account).escapeHTML() : "") }), {
+                    $.growl($.t("error_find_account_id", { accountRS: (data && data.account ? krs.escapeRespStr(data.account) : "") }), {
                         "type": "danger",
                         "offset": 10
                     });
@@ -348,7 +358,10 @@ var krs = (function(krs, $, undefined) {
                         }
                     });
                     if (krs.lastBlockHeight == 0 && krs.state.numberOfBlocks) {
-                        krs.lastBlockHeight = krs.state.numberOfBlocks - 1;
+                        krs.checkBlockHeight(krs.state.numberOfBlocks - 1);
+                    }
+                    if (krs.lastBlockHeight == 0 && krs.lastProxyBlockHeight) {
+                        krs.checkBlockHeight(krs.lastProxyBlockHeight);
                     }
                     $("#sidebar_block_link").html(krs.getBlockLink(krs.lastBlockHeight));
 

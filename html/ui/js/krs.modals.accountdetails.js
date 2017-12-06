@@ -27,13 +27,13 @@ var krs = (function(krs, $, undefined) {
         var accountBalanceWarning = $("#account_balance_warning");
         if (krs.accountInfo.errorCode && krs.accountInfo.errorCode != 5) {
 			$("#account_balance_table").hide();
-			accountBalanceWarning.html(String(krs.accountInfo.errorDescription).escapeHTML()).show();
+			accountBalanceWarning.html(krs.escapeRespStr(krs.accountInfo.errorDescription)).show();
 		} else {
 			accountBalanceWarning.hide();
             var accountBalancePublicKey = $("#account_balance_public_key");
             if (krs.accountInfo.errorCode && krs.accountInfo.errorCode == 5) {
 				$("#account_balance_balance, #account_balance_unconfirmed_balance, #account_balance_effective_balance, #account_balance_guaranteed_balance, #account_balance_forged_balance").html("0 KPL");
-				accountBalancePublicKey.html(String(krs.publicKey).escapeHTML());
+				accountBalancePublicKey.html(krs.escapeRespStr(krs.publicKey));
 				$("#account_balance_account_rs").html(krs.getAccountLink(krs, "account", undefined, undefined, true));
 				$("#account_balance_account").html(String(krs.account).escapeHTML());
 			} else {
@@ -43,9 +43,9 @@ var krs = (function(krs, $, undefined) {
 				$("#account_balance_guaranteed_balance").html(krs.formatAmount(new BigInteger(krs.accountInfo.guaranteedBalanceNQT)) + " KPL");
 				$("#account_balance_forged_balance").html(krs.formatAmount(new BigInteger(krs.accountInfo.forgedBalanceNQT)) + " KPL");
 
-				accountBalancePublicKey.html(String(krs.accountInfo.publicKey).escapeHTML());
+				accountBalancePublicKey.html(krs.escapeRespStr(krs.accountInfo.publicKey));
 				$("#account_balance_account_rs").html(krs.getAccountLink(krs.accountInfo, "account", undefined, undefined, true));
-				$("#account_balance_account").html(String(krs.account).escapeHTML());
+				$("#account_balance_account").html(krs.escapeRespStr(krs.account));
 
 				if (!krs.accountInfo.publicKey) {
 					accountBalancePublicKey.html("/");

@@ -43,7 +43,7 @@ var krs = (function(krs, $) {
                         state = $.t(krs.getShufflingParticipantState(shuffler.participantState).toLowerCase());
                     }
                     if (shuffler.failureCause) {
-                        error = String(response.failureCause).escapeHTML()
+                        error = krs.escapeRespStr(response.failureCause)
                     }
                     break;
                 }
@@ -126,7 +126,7 @@ var krs = (function(krs, $) {
                     case 2: return krs.getTransactionLink(response.holding, response.holdingInfo.code)  + " (" + $.t('currency') + ")";
                 }
             })(),
-            participants: String(response.registrantCount).escapeHTML() + " / " + String(response.participantCount).escapeHTML(),
+            participants: krs.escapeRespStr(response.registrantCount) + " / " + krs.escapeRespStr(response.participantCount),
             blocks: response.blocksRemaining,
             shuffling: response.shuffling,
             shufflingFullHash: response.shufflingFullHash

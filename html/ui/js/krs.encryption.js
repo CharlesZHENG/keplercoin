@@ -180,7 +180,7 @@ var krs = (function (krs, $) {
 				if (options.title) {
 					var translatedTitle = krs.getTranslatedFieldName(options.title).toLowerCase();
 					if (!translatedTitle) {
-						translatedTitle = String(options.title).escapeHTML().toLowerCase();
+						translatedTitle = krs.escapeRespStr(options.title).toLowerCase();
 					}
 
 					return $.t("error_could_not_decrypt_var", {
@@ -357,8 +357,8 @@ var krs = (function (krs, $) {
 			options = {};
 		}
 		var nrFields = Object.keys(fields).length;
-		var formEl = (options.formEl ? String(options.formEl).escapeHTML() : "#transaction_info_output_bottom");
-		var outputEl = (options.outputEl ? String(options.outputEl).escapeHTML() : "#transaction_info_output_bottom");
+		var formEl = (options.formEl ? krs.escapeRespStr(options.formEl) : "#transaction_info_output_bottom");
+		var outputEl = (options.outputEl ? krs.escapeRespStr(options.outputEl) : "#transaction_info_output_bottom");
 		var output = "";
 		var identifier = (options.identifier ? transaction[options.identifier] : transaction.transaction);
 
@@ -428,7 +428,7 @@ var krs = (function (krs, $) {
 							if (title) {
 								var translatedTitle = krs.getTranslatedFieldName(title).toLowerCase();
 								if (!translatedTitle) {
-									translatedTitle = String(title).escapeHTML().toLowerCase();
+									translatedTitle = krs.escapeRespStr(title).toLowerCase();
 								}
 
 								data.message = $.t("error_could_not_decrypt_var", {
@@ -605,7 +605,7 @@ var krs = (function (krs, $) {
 			delete _decryptedTransactions[decryptionKeys[0]];
 		}
 		krs.removeDecryptionForm();
-		var outputEl = (_encryptedNote.options.outputEl ? String(_encryptedNote.options.outputEl).escapeHTML() : "#transaction_info_output_bottom");
+		var outputEl = (_encryptedNote.options.outputEl ? krs.escapeRespStr(_encryptedNote.options.outputEl) : "#transaction_info_output_bottom");
 		$(outputEl).append(output).show();
 		_encryptedNote = null;
 		if (rememberPassword) {

@@ -33,16 +33,16 @@ var krs = (function(krs, $) {
     krs.jsondata.monitors = function (response) {
         return {
             accountFormatted: krs.getAccountLink(response, "account"),
-            property: String(response.property).escapeHTML(),
+            property: krs.escapeRespStr(response.property),
             amountFormatted: krs.formatAmount(response.amount),
             thresholdFormatted: krs.formatAmount(response.threshold),
-            interval: String(response.interval).escapeHTML(),
+            interval: krs.escapeRespStr(response.interval),
             statusLinkFormatted: "<a href='#' class='btn btn-xs' " +
                         "onclick='krs.goToMonitor(" + JSON.stringify(response) + ");'>" +
                          $.t("status") + "</a>",
             stopLinkFormatted: "<a href='#' class='btn btn-xs' data-toggle='modal' data-target='#stop_funding_monitor_modal' " +
-                        "data-account='" + String(response.accountRS).escapeHTML() + "' " +
-                        "data-property='" + String(response.property).escapeHTML() + "'>" + $.t("stop") + "</a>"
+                        "data-account='" + krs.escapeRespStr(response.accountRS) + "' " +
+                        "data-property='" + krs.escapeRespStr(response.property) + "'>" + $.t("stop") + "</a>"
         };
     };
 
@@ -54,13 +54,13 @@ var krs = (function(krs, $) {
         }
         return {
             accountFormatted: krs.getAccountLink(response, "recipient"),
-            property: String(response.property).escapeHTML(),
+            property: krs.escapeRespStr(response.property),
             amountFormatted: (value && value.amount) ? "<b>" + krs.formatAmount(value.amount) : krs.formatAmount(currentMonitor.amount),
             thresholdFormatted: (value && value.threshold) ? "<b>" + krs.formatAmount(value.threshold) : krs.formatAmount(currentMonitor.threshold),
-            intervalFormatted: (value && value.interval) ? "<b>" + String(value.interval).escapeHTML() : String(currentMonitor.interval).escapeHTML(),
+            intervalFormatted: (value && value.interval) ? "<b>" + krs.escapeRespStr(value.interval): krs.escapeRespStr(currentMonitor.interval),
             removeLinkFormatted: "<a href='#' class='btn btn-xs' data-toggle='modal' data-target='#remove_monitored_account_modal' " +
-                        "data-recipient='" + String(response.recipientRS).escapeHTML() + "' " +
-                        "data-property='" + String(response.property).escapeHTML() + "' " +
+                        "data-recipient='" + krs.escapeRespStr(response.recipientRS) + "' " +
+                        "data-property='" + krs.escapeRespStr(response.property) + "' " +
                         "data-value='" + krs.normalizePropertyValue(response.value) + "'>" + $.t("remove") + "</a>"
         };
     };
@@ -149,8 +149,8 @@ var krs = (function(krs, $) {
 
     krs.pages.funding_monitor_status = function (callback) {
         currentMonitor = callback();
-        $("#monitor_funding_account").html(String(currentMonitor.account).escapeHTML());
-        $("#monitor_control_property").html(String(currentMonitor.property).escapeHTML());
+        $("#monitor_funding_account").html(krs.escapeRespStr((currentMonitor.account)));
+        $("#monitor_control_property").html(krs.escapeRespStr(currentMonitor.property));
         krs.hasMorePages = false;
         var view = krs.simpleview.get('funding_monitor_status_page', {
             errorMessage: null,

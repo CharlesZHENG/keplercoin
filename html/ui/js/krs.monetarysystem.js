@@ -79,7 +79,7 @@ var krs = (function (krs, $, undefined) {
         $("#buy_currency_offers").html($.t("offers_to_buy_currency_param", { currency: currencyCode}));
         $("#sell_currency_with_KPL").html($.t("sell_currency_param", { currency: currencyCode}));
         $("#sell_currency_offers").html($.t("offers_to_sell_currency_param", { currency: currencyCode}));
-        $(".currency_code").html(String(currencyCode).escapeHTML());
+        $(".currency_code").html(krs.escapeRespStr(String(currencyCode)));
 
         var currencyId = 0;
         async.waterfall([
@@ -93,11 +93,11 @@ var krs = (function (krs, $, undefined) {
                         $("#currency_account").html(krs.getAccountLink(response, "account"));
                         currencyId = response.currency;
                         $("#currency_id").html(krs.getTransactionLink(currencyId));
-                        $("#currency_name").html(String(response.name).escapeHTML());
-                        $("#currency_code").html(String(response.code).escapeHTML());
+                        $("#currency_name").html(krs.escapeRespStr(response.name));
+                        $("#currency_code").html(krs.escapeRespStr(response.code));
                         $("#currency_current_supply").html(krs.convertToQNTf(response.currentSupply, response.decimals).escapeHTML());
                         $("#currency_max_supply").html(krs.convertToQNTf(response.maxSupply, response.decimals).escapeHTML());
-                        $("#currency_decimals").html(String(response.decimals).escapeHTML());
+                        $("#currency_decimals").html(krs.escapeRespStr(response.decimals));
                         $("#currency_description").html(String(response.description).autoLink());
                         var buyCurrencyButton = $("#buy_currency_button");
                         buyCurrencyButton.data("currency", currencyId);
@@ -108,14 +108,14 @@ var krs = (function (krs, $, undefined) {
                         if (!refresh) {
                             var msLinksCallout = $("#ms_links_callout");
                             msLinksCallout.html("");
-                            msLinksCallout.append("<a href='#' data-toggle='modal' data-target='#transfer_currency_modal' data-currency='" + String(response.currency).escapeHTML() + "' data-code='" + response.code + "' data-decimals='" + response.decimals + "'>" + $.t("transfer") + "</a>");
+                            msLinksCallout.append("<a href='#' data-toggle='modal' data-target='#transfer_currency_modal' data-currency='" + krs.escapeRespStr(response.currency) + "' data-code='" + response.code + "' data-decimals='" + response.decimals + "'>" + $.t("transfer") + "</a>");
                             msLinksCallout.append(" | ");
-                            msLinksCallout.append("<a href='#' data-toggle='modal' data-target='#publish_exchange_offer_modal' data-currency='" + String(response.currency).escapeHTML() + "' data-code='" + response.code + "' data-decimals='" + response.decimals + "'>" + $.t("offer") + "</a>");
+                            msLinksCallout.append("<a href='#' data-toggle='modal' data-target='#publish_exchange_offer_modal' data-currency='" + krs.escapeRespStr(response.currency) + "' data-code='" + response.code + "' data-decimals='" + response.decimals + "'>" + $.t("offer") + "</a>");
                         }
                     } else {
                         $("#MSnoCode").show();
                         $("#MScode").hide();
-                        $.growl(response.errorDescription.escapeHTML(), {
+                        $.growl(krs.escapeRespStr(response.errorDescription), {
                             "type": "danger"
                         });
                     }
@@ -190,12 +190,12 @@ var krs = (function (krs, $, undefined) {
         });
         for (var i = 0; i < response.currencies.length; i++) {
             var currency = response.currencies[i];
-            var name = String(currency.name).escapeHTML();
-            var currencyId = String(currency.currency).escapeHTML();
-            var code = String(currency.code).escapeHTML();
+            var name = krs.escapeRespStr(currency.name);
+            var currencyId = krs.escapeRespStr(currency.currency);
+            var code = krs.escapeRespStr(currency.code);
             var resSupply = krs.convertToQNTf(currency.reserveSupply, currency.decimals);
-            var decimals = String(currency.decimals).escapeHTML();
-            var minReserve = String(currency.minReservePerUnitNQT).escapeHTML();
+            var decimals = krs.escapeRespStr(String().escapeHTML());
+            var minReserve = krs.escapeRespStr(String().escapeHTML());
             var typeIcons = krs.getTypeIcons(currency.type);
             rows += "<tr>" +
             "<td>" + krs.getTransactionLink(currencyId, code) + "</td>" +
@@ -743,10 +743,10 @@ var krs = (function (krs, $, undefined) {
                     });
                     for (var i = 0; i < response.accountCurrencies.length; i++) {
                         var currency = response.accountCurrencies[i];
-                        var currencyId = String(currency.currency).escapeHTML();
-                        var code = String(currency.code).escapeHTML();
-                        var name = String(currency.name).escapeHTML();
-                        var decimals = String(currency.decimals).escapeHTML();
+                        var currencyId = krs.escapeRespStr(currency.currency);
+                        var code = krs.escapeRespStr(currency.code);
+                        var name = krs.escapeRespStr(currency.name);
+                        var decimals = krs.escapeRespStr(currency.decimals);
                         var typeIcons = krs.getTypeIcons(currency.type);
                         var isOfferEnabled = krs.isExchangeable(currency.type) && (!krs.isControllable(currency.type) || krs.account == currency.issuerAccount);
                         //noinspection HtmlUnknownAttribute,BadExpressionStatementJS
@@ -757,8 +757,8 @@ var krs = (function (krs, $, undefined) {
                         "<td class = 'numeric'>" + krs.formatQuantity(currency.unconfirmedUnits, currency.decimals, false, unitsDecimals) + "</td>" +
                         "<td>" +
                         "<a href='#' class='btn btn-xs btn-default' onClick='krs.goToCurrency(&quot;" + code + "&quot;)' " + (!krs.isExchangeable(currency.type) ? "disabled" : "") + ">" + $.t("exchange") + "</a> " +
-                        "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_currency_modal' data-currency='" + String(currency.currency).escapeHTML() + "' data-code='" + code + "' data-decimals='" + decimals + "'>" + $.t("transfer") + "</a> " +
-                        "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#publish_exchange_offer_modal' data-currency='" + String(currency.currency).escapeHTML() + "' data-code='" + code + "' data-decimals='" + decimals + "' " + (isOfferEnabled ? "" : "disabled") + " >" + $.t("offer") + "</a> " +
+                        "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#transfer_currency_modal' data-currency='" + krs.escapeRespStr(currency.currency) + "' data-code='" + code + "' data-decimals='" + decimals + "'>" + $.t("transfer") + "</a> " +
+                        "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#publish_exchange_offer_modal' data-currency='" + krs.escapeRespStr(currency.currency) + "' data-code='" + code + "' data-decimals='" + decimals + "' " + (isOfferEnabled ? "" : "disabled") + " >" + $.t("offer") + "</a> " +
                         "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' data-target='#claim_currency_modal' data-currency='" + currencyId + "' data-name='" + name + "' data-code='" + code + "' data-decimals='" + decimals + "' " + (currency.issuanceHeight <= krs.lastBlockHeight && krs.isClaimable(currency.type) ? "" : "disabled") + " >" + $.t("claim") + "</a> " +
                         "</td>" +
                         "</tr>";
@@ -874,10 +874,10 @@ var krs = (function (krs, $, undefined) {
                 $("#transfer_currency_currency").val(response.currency);
                 $("#transfer_currency_decimals").val(response.decimals);
                 krs.updateAvailableCurrency(response.currency);
-                $("#transfer_currency_units_code").html(String(response.code).escapeHTML());
+                $("#transfer_currency_units_code").html(krs.escapeRespStr(response.code));
                 transferCurrencyModal.find(".error_message").hide();
             } else if (response.errorCode) {
-                transferCurrencyModal.find(".error_message").html(response.errorDescription.escapeHTML());
+                transferCurrencyModal.find(".error_message").html(krs.escapeRespStr(response.errorDescription));
                 transferCurrencyModal.find(".error_message").show();
             }
         })
@@ -995,7 +995,7 @@ var krs = (function (krs, $, undefined) {
                     var type = (transfers[i].recipientRS == krs.accountRS ? "receive" : "send");
                     rows += "<tr>" +
                     "<td>" + krs.getTransactionLink(transfers[i].transfer, transfers[i].currency) + "</td>" +
-                    "<td><a href='#' data-goto-currency='" + String(transfers[i].code).escapeHTML() + "'>" + String(transfers[i].name).escapeHTML() + "</a></td>" +
+                    "<td><a href='#' data-goto-currency='" + krs.escapeRespStr(transfers[i].code) + "'>" + krs.escapeRespStr(transfers[i].name) + "</a></td>" +
                     "<td>" + krs.formatTimestamp(transfers[i].timestamp) + "</td>" +
                     "<td style='" + (type == "receive" ? "color:green" : "color:red") + "' class='numeric'>" + krs.formatQuantity(transfers[i].units, transfers[i].decimals, false, quantityDecimals) + "</td>" +
                     "<td>" + krs.getAccountLink(transfers[i], "recipient") + "</td>" +

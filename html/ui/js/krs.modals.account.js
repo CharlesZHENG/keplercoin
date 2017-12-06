@@ -82,7 +82,7 @@ var krs = (function(krs, $) {
 		}
 
 		if (account.name) {
-			$("#user_info_modal_account_name").html(String(account.name).escapeHTML());
+			$("#user_info_modal_account_name").html(krs.escapeRespStr(account.name));
 			$("#user_info_modal_account_name_container").show();
 		} else {
 			$("#user_info_modal_account_name_container").hide();
@@ -90,7 +90,7 @@ var krs = (function(krs, $) {
 
 		if (account.description) {
 			$("#user_info_description").show();
-			$("#user_info_modal_description").html(String(account.description).escapeHTML().nl2br());
+			$("#user_info_modal_description").html(krs.escapeRespStr(account.description).nl2br());
 		} else {
 			$("#user_info_description").hide();
 		}
@@ -246,7 +246,7 @@ var krs = (function(krs, $) {
 				});
 				for (var i = 0; i < aliases.length; i++) {
 					var alias = aliases[i];
-					rows += "<tr data-alias='" + String(alias.aliasName).toLowerCase().escapeHTML() + "'><td class='alias'>" + String(alias.aliasName).escapeHTML() + "</td><td class='uri'>" + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + String(alias.aliasURI).escapeHTML() + "' target='_blank'>" + String(alias.aliasURI).escapeHTML() + "</a>" : String(alias.aliasURI).escapeHTML()) + "</td></tr>";
+					rows += "<tr data-alias='" + krs.escapeRespStr(alias.aliasName).toLowerCase() + "'><td class='alias'>" + krs.escapeRespStr(alias.aliasName) + "</td><td class='uri'>" + (alias.aliasURI.indexOf("http") === 0 ? "<a href='" + krs.escapeRespStr(alias.aliasURI) + "' target='_blank'>" + krs.escapeRespStr(alias.aliasURI) + "</a>" : krs.escapeRespStr(alias.aliasURI)) + "</td></tr>";
 				}
 			}
             var infoModalAliasesTable = $("#user_info_modal_aliases_table");
@@ -274,7 +274,7 @@ var krs = (function(krs, $) {
 					if (good.name.length > 150) {
 						good.name = good.name.substring(0, 150) + "...";
 					}
-					rows += "<tr><td><a href='#' data-goto-goods='" + String(good.goods).escapeHTML() + "' data-seller='" + String(krs.userInfoModal.user).escapeHTML() + "'>" + String(good.name).escapeHTML() + "</a></td><td class='numeric'>" + krs.formatAmount(good.priceNQT, false, false, priceDecimals) + " KPL</td><td class='numeric'>" + krs.format(good.quantity, false, quantityDecimals) + "</td></tr>";
+					rows += "<tr><td><a href='#' data-goto-goods='" + krs.escapeRespStr(good.goods) + "' data-seller='" + krs.escapeRespStr(krs.userInfoModal.user) + "'>" + krs.escapeRespStr(good.name) + "</a></td><td class='numeric'>" + krs.formatAmount(good.priceNQT, false, false, priceDecimals) + " KPL</td><td class='numeric'>" + krs.format(good.quantity, false, quantityDecimals) + "</td></tr>";
 				}
 			}
             var infoModalMarketplaceTable = $("#user_info_modal_marketplace_table");
@@ -295,9 +295,9 @@ var krs = (function(krs, $) {
 			if (response.accountCurrencies && response.accountCurrencies.length) {
 				for (var i = 0; i < response.accountCurrencies.length; i++) {
 					var currency = response.accountCurrencies[i];
-					var code = String(currency.code).escapeHTML();
+					var code = krs.escapeRespStr(currency.code);
 					rows += "<tr>" +
-						"<td>" + krs.getTransactionLink(String(currency.currency).escapeHTML(), code) + "</td>" +
+						"<td>" + krs.getTransactionLink(krs.escapeRespStr(currency.currency), code) + "</td>" +
 						"<td>" + currency.name + "</td>" +
 						"<td class='numeric'>" + krs.formatQuantity(currency.unconfirmedUnits, currency.decimals, false, unitsDecimals) + "</td>" +
 					"</tr>";
@@ -375,7 +375,7 @@ var krs = (function(krs, $) {
 					trades[i].quantityQNT = new BigInteger(trades[i].quantityQNT);
 					trades[i].totalNQT = new BigInteger(krs.calculateOrderTotalNQT(trades[i].priceNQT, trades[i].quantityQNT));
 					var type = (trades[i].buyerRS == krs.userInfoModal.user ? "buy" : "sell");
-					rows += "<tr><td><a href='#' data-goto-asset='" + String(trades[i].asset).escapeHTML() + "'>" + String(trades[i].name).escapeHTML() + "</a></td><td>" + krs.formatTimestamp(trades[i].timestamp) + "</td><td style='color:" + (type == "buy" ? "green" : "red") + "'>" + $.t(type) + "</td><td class='numeric'>" + krs.formatQuantity(trades[i].quantityQNT, trades[i].decimals, false, quantityDecimals) + "</td><td class='asset_price numeric'>" + krs.formatOrderPricePerWholeQNT(trades[i].priceNQT, trades[i].decimals, priceDecimals) + "</td><td class='numeric' style='color:" + (type == "buy" ? "red" : "green") + "'>" + krs.formatAmount(trades[i].totalNQT, false, false, amountDecimals) + "</td></tr>";
+					rows += "<tr><td><a href='#' data-goto-asset='" + krs.escapeRespStr(trades[i].asset) + "'>" + krs.escapeRespStr(trades[i].name) + "</a></td><td>" + krs.formatTimestamp(trades[i].timestamp) + "</td><td style='color:" + (type == "buy" ? "green" : "red") + "'>" + $.t(type) + "</td><td class='numeric'>" + krs.formatQuantity(trades[i].quantityQNT, trades[i].decimals, false, quantityDecimals) + "</td><td class='asset_price numeric'>" + krs.formatOrderPricePerWholeQNT(trades[i].priceNQT, trades[i].decimals, priceDecimals) + "</td><td class='numeric' style='color:" + (type == "buy" ? "red" : "green") + "'>" + krs.formatAmount(trades[i].totalNQT, false, false, amountDecimals) + "</td></tr>";
 				}
 			}
             var infoModalTradeHistoryTable = $("#user_info_modal_trade_history_table");
@@ -447,7 +447,7 @@ var krs = (function(krs, $) {
 		for (var i = 0; i < assetArray.length; i++) {
 			var asset = assetArray[i];
 			var percentageAsset = krs.calculatePercentage(asset.balanceQNT, asset.quantityQNT);
-			rows += "<tr" + (asset.issued ? " class='asset_owner'" : "") + "><td><a href='#' data-goto-asset='" + String(asset.asset).escapeHTML() + "'" + (asset.issued ? " style='font-weight:bold'" : "") + ">" + String(asset.name).escapeHTML() + "</a></td><td class='quantity numeric'>" + krs.formatQuantity(asset.balanceQNT, asset.decimals, false, quantityDecimals) + "</td><td class='numeric'>" + krs.formatQuantity(asset.quantityQNT, asset.decimals, false, totalDecimals) + "</td><td>" + percentageAsset + "%</td></tr>";
+			rows += "<tr" + (asset.issued ? " class='asset_owner'" : "") + "><td><a href='#' data-goto-asset='" + krs.escapeRespStr(asset.asset) + "'" + (asset.issued ? " style='font-weight:bold'" : "") + ">" + krs.escapeRespStr(asset.name) + "</a></td><td class='quantity numeric'>" + krs.formatQuantity(asset.balanceQNT, asset.decimals, false, quantityDecimals) + "</td><td class='numeric'>" + krs.formatQuantity(asset.quantityQNT, asset.decimals, false, totalDecimals) + "</td><td>" + percentageAsset + "%</td></tr>";
 		}
 
         var infoModalAssetsTable = $("#user_info_modal_assets_table");

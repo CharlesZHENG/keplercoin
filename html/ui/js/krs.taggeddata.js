@@ -26,11 +26,11 @@ var krs = (function(krs, $) {
 
     krs.jsondata.data = function(response) {
         return {
-            nameFormatted: krs.getTransactionLink(response.transaction, krs.addEllipsis(response.name, 20)),
+            nameFormatted: krs.getTransactionLink(response.transaction, krs.addEllipsis(krs.unescapeRespStr(response.name), 20)),
             accountFormatted: krs.getAccountLink(response, "account"),
-            type: krs.addEllipsis(String(response.type).escapeHTML(), 20),
-            channel: krs.addEllipsis(String(response.channel).escapeHTML(), 20),
-            filename: krs.addEllipsis(String(response.filename).escapeHTML(), 20),
+            type: krs.addEllipsis(krs.unescapeRespStr(response.type), 20),
+            channel: krs.addEllipsis(krs.unescapeRespStr(response.channel), 20),
+            filename: krs.addEllipsis(krs.unescapeRespStr(response.filename), 20),
             dataFormatted: krs.getTaggedDataLink(response.transaction, response.isText)
         };
     };
@@ -39,9 +39,9 @@ var krs = (function(krs, $) {
         if (isText) {
             return "<a href='#' class='btn btn-xs btn-default' data-toggle='modal' " +
                 "data-target='#tagged_data_view_modal' " +
-                "data-transaction='" + String(transaction).escapeHTML() + "'>" + $.t("view") + "</a>";
+                "data-transaction='" + krs.escapeRespStr(transaction) + "'>" + $.t("view") + "</a>";
         } else {
-			return "<a href='/kpl?requestType=downloadTaggedData&transaction=" + String(transaction).escapeHTML() +
+            return "<a href='" + krs.getRequestPath() + "?requestType=downloadTaggedData&transaction=" + krs.escapeRespStr(transaction) +
                 "&retrieve=true' class='btn btn-xs btn-default'>" + $.t("download") + "</a>";
         }
     };
@@ -282,12 +282,12 @@ var krs = (function(krs, $) {
 			"retrieve": "true"
 		}, function (response) {
 			if (response.errorCode) {
-                $("#tagged_data_content").val(response.errorDescription.escapeHTML());
+                $("#tagged_data_content").val(krs.unescapeRespStr(response.errorDescription));
 			} else {
-                $("#tagged_data_content").val(response.data);
+                $("#tagged_data_content").val(krs.unescapeRespStr(response.data));
 			}
 		}, false);
-		$("#tagged_data_download").attr("href", "/kpl?requestType=downloadTaggedData&transaction=" + transaction + "&retrieve=true");
+        $("#tagged_data_download").attr("href", krs.getRequestPath() + "?requestType=downloadTaggedData&transaction=" + transaction + "&retrieve=true");
     });
 
     $("#extend_data_modal").on("show.bs.modal", function (e) {
@@ -297,7 +297,7 @@ var krs = (function(krs, $) {
         krs.sendRequest("getTransaction", {
             "transaction": transaction
         }, function (response) {
-            var fee = krs.convertToKPL(String(response.feeNQT).escapeHTML());
+            var fee = krs.convertToKPL(krs.escapeRespStr(response.feeNQT));
             $('#extend_data_fee').val(fee);
             $('#extend_data_fee_label').html(String(fee) + " KPL");
         })

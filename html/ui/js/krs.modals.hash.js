@@ -41,7 +41,7 @@ var krs = (function(krs, $, undefined) {
 
 		if (response.hash) {
 			$("#hash_calculation_output").html($.t("calculated_hash_is") + "<br/><br/>" +
-				"<textarea style='width:100%' rows='3'>" + String(response.hash).escapeHTML() + "</textarea>").show();
+				"<textarea style='width:100%' rows='3'>" + krs.escapeRespStr(response.hash) + "</textarea>").show();
 		} else {
 			$.growl($.t("error_calculate_hash"), {
 				"type": "danger"

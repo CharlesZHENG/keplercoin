@@ -18,29 +18,29 @@
  * @depends {krs.js}
  * @depends {krs.modals.js}
  */
-var krs = (function(krs, $) {
-	krs.forms.startForgingComplete = function(response, data) {
-		if ("deadline" in response) {
+var krs = (function (krs, $) {
+    krs.forms.startForgingComplete = function (response, data) {
+        if ("deadline" in response) {
             setForgingIndicatorStatus(krs.constants.FORGING);
-			forgingIndicator.find("span").html($.t(krs.constants.FORGING)).attr("data-i18n", "forging");
-			krs.forgingStatus = krs.constants.FORGING;
+            forgingIndicator.find("span").html($.t(krs.constants.FORGING)).attr("data-i18n", "forging");
+            krs.forgingStatus = krs.constants.FORGING;
             krs.isAccountForging = true;
-			$.growl($.t("success_start_forging"), {
-				type: "success"
-			});
-		} else {
+            $.growl($.t("success_start_forging"), {
+                type: "success"
+            });
+        } else {
             krs.isAccountForging = false;
-			$.growl($.t("error_start_forging"), {
-				type: 'danger'
-			});
-		}
-	};
+            $.growl($.t("error_start_forging"), {
+                type: 'danger'
+            });
+        }
+    };
 
-	krs.forms.stopForgingComplete = function(response, data) {
-		if ($("#stop_forging_modal").find(".show_logout").css("display") == "inline") {
-			krs.logout();
-			return;
-		}
+    krs.forms.stopForgingComplete = function (response, data) {
+        if ($("#stop_forging_modal").find(".show_logout").css("display") == "inline") {
+            krs.logout();
+            return;
+        }
         if (response.foundAndStopped || (response.stopped && response.stopped > 0)) {
             krs.isAccountForging = false;
             if (!response.forgersCount || response.forgersCount == 0) {
@@ -48,63 +48,67 @@ var krs = (function(krs, $) {
                 forgingIndicator.find("span").html($.t(krs.constants.NOT_FORGING)).attr("data-i18n", "forging");
             }
             $.growl($.t("success_stop_forging"), {
-				type: 'success'
-			});
-		} else {
-			$.growl($.t("error_stop_forging"), {
-				type: 'danger'
-			});
-		}
-	};
+                type: 'success'
+            });
+        } else {
+            $.growl($.t("error_stop_forging"), {
+                type: 'danger'
+            });
+        }
+    };
 
-	var forgingIndicator = $("#forging_indicator");
-	forgingIndicator.click(function(e) {
-		e.preventDefault();
+    var forgingIndicator = $("#forging_indicator");
+    forgingIndicator.click(function (e) {
+        e.preventDefault();
 
-		if (krs.downloadingBlockchain) {
-			$.growl($.t("error_forging_blockchain_downloading"), {
-				"type": "danger"
-			});
-		} else if (krs.state.isScanning) {
-			$.growl($.t("error_forging_blockchain_rescanning"), {
-				"type": "danger"
-			});
-		} else if (!krs.accountInfo.publicKey) {
-			$.growl($.t("error_forging_no_public_key"), {
-				"type": "danger"
-			});
-		} else if (krs.accountInfo.effectiveBalancekpl == 0) {
-			if (krs.lastBlockHeight >= krs.accountInfo.currentLeasingHeightFrom && krs.lastBlockHeight <= krs.accountInfo.currentLeasingHeightTo) {
-				$.growl($.t("error_forging_lease"), {
-					"type": "danger"
-				});
-			} else {
-				$.growl($.t("error_forging_effective_balance"), {
-					"type": "danger"
-				});
-			}
-		} else if (krs.isAccountForging) {
-			$("#stop_forging_modal").modal("show");
-		} else {
-			$("#start_forging_modal").modal("show");
-		}
-	});
+        if (krs.state.isLightClient) {
+            $.growl($.t("error_forging_light_client"), {
+                "type": "danger"
+            });
+        } else if (krs.downloadingBlockchain) {
+            $.growl($.t("error_forging_blockchain_downloading"), {
+                "type": "danger"
+            });
+        } else if (krs.state.isScanning) {
+            $.growl($.t("error_forging_blockchain_rescanning"), {
+                "type": "danger"
+            });
+        } else if (!krs.accountInfo.publicKey) {
+            $.growl($.t("error_forging_no_public_key"), {
+                "type": "danger"
+            });
+        } else if (krs.accountInfo.effectiveBalancekpl == 0) {
+            if (krs.lastBlockHeight >= krs.accountInfo.currentLeasingHeightFrom && krs.lastBlockHeight <= krs.accountInfo.currentLeasingHeightTo) {
+                $.growl($.t("error_forging_lease"), {
+                    "type": "danger"
+                });
+            } else {
+                $.growl($.t("error_forging_effective_balance"), {
+                    "type": "danger"
+                });
+            }
+        } else if (krs.isAccountForging) {
+            $("#stop_forging_modal").modal("show");
+        } else {
+            $("#start_forging_modal").modal("show");
+        }
+    });
 
-	forgingIndicator.hover(
-		function() {
+    forgingIndicator.hover(
+        function () {
             krs.updateForgingStatus();
         }
-	);
+    );
 
-    krs.getForgingTooltip = function(data) {
+    krs.getForgingTooltip = function (data) {
         if (!data || data.account == krs.accountInfo.account) {
             krs.isAccountForging = true;
             return $.t("forging_tooltip", {"balance": krs.accountInfo.effectiveBalancekpl});
         }
-        return $.t("forging_another_account_tooltip", {"accountRS": data.accountRS });
+        return $.t("forging_another_account_tooltip", {"accountRS": data.accountRS});
     };
 
-    krs.updateForgingTooltip = function(tooltip) {
+    krs.updateForgingTooltip = function (tooltip) {
         $("#forging_indicator").attr('title', tooltip).tooltip('fixTitle');
     };
 
@@ -117,10 +121,13 @@ var krs = (function(krs, $) {
         return forgingIndicator;
     }
 
-    krs.updateForgingStatus = function(secretPhrase) {
+    krs.updateForgingStatus = function (secretPhrase) {
         var status = krs.forgingStatus;
         var tooltip = $("#forging_indicator").attr('title');
-        if (!krs.accountInfo.publicKey) {
+        if (krs.state.isLightClient) {
+            status = krs.constants.NOT_FORGING;
+            tooltip = $.t("error_forging_light_client");
+        } else if (!krs.accountInfo.publicKey) {
             status = krs.constants.NOT_FORGING;
             tooltip = $.t("error_forging_no_public_key");
         } else if (krs.isLeased) {
@@ -160,8 +167,8 @@ var krs = (function(krs, $) {
                         if (response.generators.length == 1) {
                             tooltip = krs.getForgingTooltip(response.generators[0]);
                         } else {
-                            tooltip = $.t("forging_more_than_one_tooltip", { "generators": response.generators.length });
-                            for (var i=0; i< response.generators.length; i++) {
+                            tooltip = $.t("forging_more_than_one_tooltip", {"generators": response.generators.length});
+                            for (var i = 0; i < response.generators.length; i++) {
                                 if (response.generators[i].account == krs.accountInfo.account) {
                                     krs.isAccountForging = true;
                                 }
@@ -175,7 +182,7 @@ var krs = (function(krs, $) {
                     }
                 } else {
                     status = krs.constants.UNKNOWN;
-                    tooltip = response.errorDescription.escapeHTML();
+                    tooltip = krs.escapeRespStr(response.errorDescription);
                 }
             }, false);
         }
@@ -189,5 +196,5 @@ var krs = (function(krs, $) {
         krs.updateForgingTooltip(tooltip);
     };
 
-	return krs;
+    return krs;
 }(krs || {}, jQuery));
