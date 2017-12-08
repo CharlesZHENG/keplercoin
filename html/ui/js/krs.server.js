@@ -61,7 +61,7 @@ var krs = (function (krs, $, undefined) {
         });
     };
 
-    krs.sendRequest = function (requestType, data, callback, isAsync) {
+    krs.sendRequest = function (requestType, data, callback, isAsync,noProxy) {
         if (requestType == undefined) {
             krs.logConsole("Undefined request type");
             return;

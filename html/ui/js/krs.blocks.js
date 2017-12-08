@@ -123,10 +123,10 @@ var krs = (function (krs, $) {
 
             krs.checkBlockHeight = function (blockHeight) {
                 if (blockHeight) {
-                    if (NRS.state && NRS.state.apiProxy) {
-                        NRS.lastLocalBlockHeight = blockHeight;
+                    if (krs.state && krs.state.apiProxy) {
+                        krs.lastLocalBlockHeight = blockHeight;
                     } else {
-                        NRS.lastBlockHeight = blockHeight;
+                        krs.lastBlockHeight = blockHeight;
                     }
                 }
             };

@@ -1650,7 +1650,7 @@ var krs = (function (krs, $, undefined) {
                 if (typeof val === 'string') {
                     obj[key] = String(val).escapeHTML();
                 } else if (typeof val === 'object') {
-                    NRS.escapeResponseObjStrings(obj[key]);
+                    krs.escapeResponseObjStrings(obj[key]);
                 }
             }
         }
